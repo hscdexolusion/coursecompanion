@@ -9,6 +9,7 @@ class CoursesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Courses'),
         centerTitle: true,
+        backgroundColor: Colors.white24,
       ),
       body: Center(
         child: Text('You have not added any courses yet. Tap the + button to add your first course'),
