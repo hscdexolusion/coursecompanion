@@ -24,10 +24,12 @@ class _WidgetTreeState extends State<WidgetTree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       body: pages[currentIndex],
        bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           //   indicatorColor: Colors.blue,
+          backgroundColor: Colors.blue[50]
         ),
          child: NavigationBar(
           onDestinationSelected: (value) {
