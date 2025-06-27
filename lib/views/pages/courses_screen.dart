@@ -1,3 +1,5 @@
+import 'package:coursecompanion/views/pages/add_course_sreen.dart';
+import 'package:coursecompanion/views/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 
 class CoursesScreen extends StatelessWidget {
@@ -11,19 +13,19 @@ class CoursesScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.blue[50],
       ),
-      body: Center(
-        child: Column
-        (
-          children: [
-             Text('You have not added any courses yet. Tap the + button to add your first course', textAlign: TextAlign.center,),          ]
-          ),
-        
+      body: const EmptyState(
+        icon: Icons.menu_book,
+        message: "You haven't added any courses yet.\nTap the + button to add your first course.",
       ),
       floatingActionButton:   Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: FloatingActionButton(
                 backgroundColor: Colors.blue[50],
                 onPressed: () {
+                   Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) =>  AddCoursePage()),
+          );
                },
                tooltip: 'Increment',
                shape: const CircleBorder(),

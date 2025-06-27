@@ -29,7 +29,7 @@ class _WidgetTreeState extends State<WidgetTree> {
        bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           //   indicatorColor: Colors.blue,
-          backgroundColor: Colors.blue[50]
+          backgroundColor: Colors.blue
         ),
          child: NavigationBar(
           onDestinationSelected: (value) {
@@ -40,7 +40,7 @@ class _WidgetTreeState extends State<WidgetTree> {
           selectedIndex: currentIndex,
           
           destinations: [
-          NavigationDestination(icon: Icon(Icons.book), label: 'Courses'),
+          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Courses'),
           NavigationDestination(icon: Icon(Icons.calendar_today), label: 'Deadlines'),
           NavigationDestination(icon: Icon(Icons.note), label: 'Notes'),
           NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
