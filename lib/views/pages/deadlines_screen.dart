@@ -12,8 +12,8 @@ class DeadlinesScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Deadlines'),
           centerTitle: true,
-          bottom: const TabBar(
-            tabs: [
+          bottom: TabBar(
+            tabs: const [
               Tab(text: "Pending"),
               Tab(text: "Completed"),
               Tab(text: "All"),
@@ -29,6 +29,8 @@ class DeadlinesScreen extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {},
+           tooltip: 'Increment',
+               shape: const CircleBorder(),
           child: const Icon(Icons.add),
         ),
       ),

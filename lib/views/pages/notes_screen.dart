@@ -37,6 +37,8 @@ class NotesScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         },
+         tooltip: 'Increment',
+               shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
     );

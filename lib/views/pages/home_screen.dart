@@ -1,3 +1,4 @@
+import 'package:coursecompanion/views/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -9,10 +10,10 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Center(child: Text('Home Screen')),
       ),
-      body: Center(
-        child: Text('Welcome to our Home Screen!'),
-        
-        
+      body: Container(
+        child: Center(
+          child: EmptyState(icon: Icons.home, message: 'You are welcome to Course Companion!'),
+        ),
       ),
     );
   }
