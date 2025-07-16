@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 void main() => runApp(MaterialApp(home: AddCoursePage()));
 
 class AddCoursePage extends StatefulWidget {
+  const AddCoursePage({super.key});
+
   @override
   _AddCoursePageState createState() => _AddCoursePageState();
 }
