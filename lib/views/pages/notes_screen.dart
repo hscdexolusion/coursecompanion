@@ -1,4 +1,4 @@
-import 'package:coursecompanion/views/pages/onboarding_screen.dart';
+import 'package:coursecompanion/views/pages/add_note_screen.dart';
 import 'package:flutter/material.dart';
 import '../widgets/empty_state.dart';
 //import 'add_note_screen.dart';
@@ -34,7 +34,7 @@ class NotesScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+            MaterialPageRoute(builder: (_) => const AddNoteScreen()),
           );
         },
          tooltip: 'Increment',
