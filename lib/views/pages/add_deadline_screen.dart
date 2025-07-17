@@ -42,8 +42,11 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text('Add Deadline'),
-        leading: const BackButton(color: Colors.white),
+        leading: const BackButton(color: Colors.black),
         centerTitle: true,
+        /* iconTheme: const IconThemeData(
+         color: Colors.black 
+          ),*/
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

@@ -22,7 +22,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       appBar: AppBar(
         //backgroundColor: const Color(0xFF0D122B),
         title: const Text('Add Note'),
-        leading: const BackButton(color: Colors.white),
+        leading: const BackButton(color: Colors.black),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -124,12 +124,13 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                   return null;
                 },
               ),
-               const SizedBox(height: 20),
-               ElevatedButton(onPressed: () {}, 
-               child: const Text('Save Note',
-               style: TextStyle(
-                color: Colors.black
-               ),)),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                  onPressed: () {},
+                  child: const Text(
+                    'Save Note',
+                    style: TextStyle(color: Colors.black),
+                  )),
             ],
           ),
         ),
