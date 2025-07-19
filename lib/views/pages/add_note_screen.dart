@@ -1,3 +1,4 @@
+import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class AddNoteScreen extends StatefulWidget {
@@ -18,14 +19,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor:  Colors.blue,
-        foregroundColor: Colors.white,
-        title: const Text('Add Note'),
-        leading: const BackButton(color: Colors.black),
-        centerTitle: true,
-      ),
+      //backgroundColor: const Color(0xFFF8FAFC),
+      appBar: CustomAppBar(title: 'Add Note', showBackButton: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -126,12 +121,22 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Save Note',
-                    style: TextStyle(color: Colors.black),
-                  )),
+             ElevatedButton.icon(
+              onPressed: () {
+                // Handle save logic here
+              },
+              icon: Icon(Icons.save),
+              label: Text("Add Note"),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            )
             ],
           ),
         ),

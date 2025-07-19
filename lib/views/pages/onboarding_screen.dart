@@ -17,7 +17,7 @@ class OnboardingScreen extends StatelessWidget {
        final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
     return Scaffold(
-      appBar: CustomAppBar(title: 'Onboarding Screen'),
+      appBar: CustomAppBar(title: 'Onboarding Screen', showBackButton:false),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column( 

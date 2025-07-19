@@ -1,6 +1,6 @@
+import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
-
-void main() => runApp(MaterialApp(home: AddCoursePage()));
+ // Import your custom app bar
 
 class AddCoursePage extends StatefulWidget {
   const AddCoursePage({super.key});
@@ -31,24 +31,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Add New Course'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Handle Save action
-            },
-            child: Text('Save', style: TextStyle(color: Colors.blue)),
-          ),
-        ],
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        elevation: 0.5,
-      ),
+      appBar: CustomAppBar(title: "Add New Course", showBackButton: true,),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
@@ -76,6 +59,22 @@ class _AddCoursePageState extends State<AddCoursePage> {
                 );
               }),
             ),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: () {
+                // Handle save logic here
+              },
+              icon: Icon(Icons.save),
+              label: Text("Save Course"),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            )
           ],
         ),
       ),

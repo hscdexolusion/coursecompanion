@@ -1,3 +1,4 @@
+import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -6,12 +7,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-        centerTitle: true,
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        ),
+      appBar: CustomAppBar(title: 'Settings', showBackButton: true)
         
     );
   }

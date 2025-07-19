@@ -1,3 +1,4 @@
+import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -39,17 +40,8 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: const Text('Add Deadline'),
-        leading: const BackButton(color: Colors.black),
-        centerTitle: true,
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        /* iconTheme: const IconThemeData(
-         color: Colors.black 
-          ),*/
-      ),
+      //backgroundColor: const Color(0xFFF8FAFC),
+      appBar: CustomAppBar(title: 'Add Deadline', showBackButton: true,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -173,23 +165,28 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               const SizedBox(height: 30),
 
               // Submit Button
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Save logic here
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Deadline saved!')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amberAccent,
+                              ElevatedButton.icon(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // Save logic here
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Deadline saved!')),
+                      );
+                    }
+                  },
+                  icon: Icon(Icons.save),
+                  label: Text("Save Deadline"),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 50), // 👈 This makes it wide
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
-                child: const Text(
-                  'Save Note',
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
+
             ],
           ),
         ),

@@ -1,12 +1,16 @@
-import 'package:coursecompanion/views/pages/add_deadline_screen.dart';
 import 'package:flutter/material.dart';
-import '../widgets/empty_state.dart';
+import 'package:provider/provider.dart';
+import 'package:coursecompanion/views/pages/add_deadline_screen.dart';
+import 'package:coursecompanion/views/widgets/empty_state.dart';
+import 'package:coursecompanion/views/theme/theme_provider.dart';
 
 class DeadlinesScreen extends StatelessWidget {
   const DeadlinesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -15,8 +19,14 @@ class DeadlinesScreen extends StatelessWidget {
           foregroundColor: Colors.white,
           title: const Text('Deadlines'),
           centerTitle: true,
-          bottom: TabBar(
-            tabs: const [
+          actions: [
+            IconButton(
+              icon: Icon(themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode),
+              onPressed: () => themeProvider.toggleTheme(),
+            ),
+          ],
+          bottom: const TabBar(
+            tabs: [
               Tab(text: "Pending"),
               Tab(text: "Completed"),
               Tab(text: "All"),
@@ -26,22 +36,28 @@ class DeadlinesScreen extends StatelessWidget {
         body: const TabBarView(
           children: [
             EmptyState(
-                icon: Icons.calendar_today,
-                message: "You have no pending deadlines."),
+              icon: Icons.calendar_today,
+              message: "You have no pending deadlines.",
+            ),
             EmptyState(
-                icon: Icons.calendar_today,
-                message: "You haven't completed any deadlines yet."),
+              icon: Icons.calendar_today,
+              message: "You haven't completed any deadlines yet.",
+            ),
             EmptyState(
-                icon: Icons.calendar_today, message: "No deadlines available."),
+              icon: Icons.calendar_today,
+              message: "No deadlines available.",
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue,
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const AddDeadlineScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddDeadlineScreen()),
+            );
           },
-          tooltip: 'Increment',
+          tooltip: 'Add Deadline',
           shape: const CircleBorder(),
           child: const Icon(Icons.add),
         ),

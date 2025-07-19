@@ -16,7 +16,7 @@ class CoursesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-      appBar:CustomAppBar(title: 'Courses'),
+      appBar:CustomAppBar(title: 'Courses', showBackButton:true),
       body: const EmptyState(
         icon: Icons.menu_book,
         message: "You haven't added any courses yet.\nTap the + button to add your first course.",

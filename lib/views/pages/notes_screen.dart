@@ -1,4 +1,5 @@
 import 'package:coursecompanion/views/pages/add_note_screen.dart';
+import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import '../widgets/empty_state.dart';
 //import 'add_note_screen.dart';
@@ -9,12 +10,7 @@ class NotesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notes'), 
-        centerTitle: true,
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,),
-        backgroundColor: Colors.white,
+      appBar: CustomAppBar(title: 'Notes', showBackButton:true),
       body: Column(
         children: const [
           Padding(
