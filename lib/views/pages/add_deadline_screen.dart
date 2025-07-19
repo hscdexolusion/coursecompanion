@@ -44,6 +44,8 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
         title: const Text('Add Deadline'),
         leading: const BackButton(color: Colors.black),
         centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         /* iconTheme: const IconThemeData(
          color: Colors.black 
           ),*/

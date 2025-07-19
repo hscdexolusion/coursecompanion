@@ -11,7 +11,8 @@ class CoursesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Courses'),
         centerTitle: true,
-        backgroundColor: Colors.blue[50],
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: const EmptyState(
         icon: Icons.menu_book,
@@ -20,7 +21,8 @@ class CoursesScreen extends StatelessWidget {
       floatingActionButton:   Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: FloatingActionButton(
-                backgroundColor: Colors.blue[50],
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
                 onPressed: () {
                    Navigator.push(
             context,

@@ -45,8 +45,8 @@ class _AddCoursePageState extends State<AddCoursePage> {
             child: Text('Save', style: TextStyle(color: Colors.blue)),
           ),
         ],
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         elevation: 0.5,
       ),
       body: Padding(

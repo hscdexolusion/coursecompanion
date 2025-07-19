@@ -9,7 +9,8 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Settings'),
         centerTitle: true,
-        backgroundColor: Colors.blue[50],
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         ),
         
     );

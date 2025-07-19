@@ -11,6 +11,8 @@ class DeadlinesScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
           title: const Text('Deadlines'),
           centerTitle: true,
           bottom: TabBar(
@@ -34,6 +36,7 @@ class DeadlinesScreen extends StatelessWidget {
           ],
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.blue,
           onPressed: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const AddDeadlineScreen()));

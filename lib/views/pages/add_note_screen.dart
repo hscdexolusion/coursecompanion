@@ -20,7 +20,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        //backgroundColor: const Color(0xFF0D122B),
+        backgroundColor:  Colors.blue,
+        foregroundColor: Colors.white,
         title: const Text('Add Note'),
         leading: const BackButton(color: Colors.black),
         centerTitle: true,

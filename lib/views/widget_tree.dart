@@ -29,7 +29,7 @@ class _WidgetTreeState extends State<WidgetTree> {
        bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           //   indicatorColor: Colors.blue,
-          backgroundColor: Colors.blue
+          backgroundColor: Colors.blue,
         ),
          child: NavigationBar(
           onDestinationSelected: (value) {

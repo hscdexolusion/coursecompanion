@@ -9,7 +9,12 @@ class NotesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notes'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Notes'), 
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,),
+        backgroundColor: Colors.white,
       body: Column(
         children: const [
           Padding(
@@ -31,6 +36,8 @@ class NotesScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         onPressed: () {
           Navigator.push(
             context,
