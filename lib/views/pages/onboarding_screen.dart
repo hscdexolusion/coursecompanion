@@ -1,5 +1,6 @@
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:coursecompanion/views/widget_tree.dart';
+import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:coursecompanion/views/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,20 +17,7 @@ class OnboardingScreen extends StatelessWidget {
        final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        //automaticallyImplyLeading: false,
-        title: const Center(child: Text('Onboarding Screen')),
-         actions: [
-          IconButton(
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () {
-              themeProvider.toggleTheme();
-            },
-          ),
-        ],
-      ),
+      appBar: CustomAppBar(title: 'Onboarding Screen'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column( 
@@ -47,11 +35,11 @@ class OnboardingScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const WidgetTree()));
               },
-              child: const Text('Get Started'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white
               ),
+              child: const Text('Get Started'),
             ),
           ],
         ),
