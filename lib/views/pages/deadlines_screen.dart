@@ -21,7 +21,7 @@ class DeadlinesScreen extends StatelessWidget {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: Icon(themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode),
+              icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
               onPressed: () => themeProvider.toggleTheme(),
             ),
           ],

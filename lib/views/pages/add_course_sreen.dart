@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 import 'package:coursecompanion/models/course_model.dart';
 import 'package:coursecompanion/providers/course_provider.dart';
@@ -120,7 +119,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ...schedules.map((s) => Text("• ${s['day']} at ${s['time']}")).toList(),
+                ...schedules.map((s) => Text("• ${s['day']} at ${s['time']}")),
                 TextButton.icon(
                   onPressed: addSchedule,
                   icon: Icon(Icons.add),
