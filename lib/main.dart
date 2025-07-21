@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom]);
   runApp(

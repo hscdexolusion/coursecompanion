@@ -2,7 +2,6 @@ import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/pages/add_course_sreen.dart';
 import 'package:coursecompanion/views/pages/course_detail.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
-import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:coursecompanion/views/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,9 +14,23 @@ class CoursesScreen extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final courseProvider = Provider.of<CourseProvider>(context);
     final courses = courseProvider.courses;
+    final isDark = themeProvider.isDarkMode;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Courses', showBackButton: true),
+      appBar: AppBar(
+        backgroundColor: Colors.blue, // Always blue
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: const Text('Courses'),
+        actions: [
+          IconButton(
+            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => themeProvider.toggleTheme(),
+          ),
+        ],
+      ),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: courses.isEmpty
           ? const EmptyState(
               icon: Icons.menu_book,
@@ -39,7 +52,9 @@ class CoursesScreen extends StatelessWidget {
                     );
                   },
                   child: Card(
-                    color: course.color.withOpacity(0.1),
+                    color: isDark
+                        ? course.color.withOpacity(0.2)
+                        : course.color.withOpacity(0.1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -52,10 +67,21 @@ class CoursesScreen extends StatelessWidget {
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      title: Text(course.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text('${course.code} • ${course.instructor}'),
-                      trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                      title: Text(
+                        course.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${course.code} • ${course.instructor}',
+                        style: TextStyle(
+                          color: theme.textTheme.bodyMedium?.color,
+                        ),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios,
+                          size: 16, color: theme.iconTheme.color),
                     ),
                   ),
                 );
