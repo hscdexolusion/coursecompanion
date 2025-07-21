@@ -6,7 +6,6 @@ import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 
 import 'package:file_picker/file_picker.dart';
-import 'dart:io';
 
 class AddCoursePage extends StatefulWidget {
   const AddCoursePage({super.key});

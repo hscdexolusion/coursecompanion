@@ -199,7 +199,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       if (!isLast) Divider(thickness: 1),
     ],
   );
-}).toList(),
+}),
 
           ],
         ),

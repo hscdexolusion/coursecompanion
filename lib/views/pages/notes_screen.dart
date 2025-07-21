@@ -16,17 +16,19 @@ class NotesScreen extends StatelessWidget {
     final notes = noteProvider.notes;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
+      appBar: CustomAppBar(
+        /*backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         title: const Text('Notes'),
         centerTitle: true,
+        
         actions: [
           IconButton(
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => themeProvider.toggleTheme(),
           ),
-        ],
+        ],*/
+        title: 'Notes',
       ),
       body: Column(
         children: [

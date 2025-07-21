@@ -15,6 +15,7 @@ class DeadlinesScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
           title: const Text('Deadlines'),

@@ -1,7 +1,6 @@
 import 'package:coursecompanion/views/pages/courses_screen.dart';
 import 'package:coursecompanion/views/pages/deadlines_screen.dart';
 import 'package:coursecompanion/views/pages/notes_screen.dart';
-import 'package:coursecompanion/views/pages/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 class WidgetTree extends StatefulWidget {
