@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+
 class Course {
   final String title;
   final String code;
@@ -6,6 +8,9 @@ class Course {
   final String schedule;
   final int colorIndex;
   final Color color;
+  final List<PlatformFile>? attachments;
+  
+
 
   Course({
     required this.title,
@@ -14,5 +19,6 @@ class Course {
     required this.schedule,
     required this.colorIndex,
     required this.color,
+    this.attachments,
   });
 }

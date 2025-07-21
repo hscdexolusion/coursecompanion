@@ -64,7 +64,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter note title...',
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                       //borderSide: BorderSide.none,
+                       ),
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                 ),

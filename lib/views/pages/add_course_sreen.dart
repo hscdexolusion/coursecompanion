@@ -5,6 +5,9 @@ import 'package:coursecompanion/models/course_model.dart';
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+
 class AddCoursePage extends StatefulWidget {
   const AddCoursePage({super.key});
 
@@ -31,10 +34,38 @@ class _AddCoursePageState extends State<AddCoursePage> {
   ];
 
   List<Map<String, dynamic>> schedules = [];
-
   final List<String> weekdays = [
     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
   ];
+
+  List<PlatformFile> selectedFiles = [];
+
+  Future<void> pickFiles() async {
+  try {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.any,
+      withData: true,
+      withReadStream: false, // <- Try false if you're not reading large files
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        selectedFiles = result.files;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("No files selected.")),
+      );
+    }
+  } catch (e) {
+    print("Error picking files: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to pick files. Please try again")),
+    );
+  }
+}
+
 
   void addSchedule() async {
     String? selectedDay;
@@ -149,6 +180,30 @@ class _AddCoursePageState extends State<AddCoursePage> {
             ),
 
             const SizedBox(height: 30),
+
+            Text("Attachments", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 6),
+            ElevatedButton.icon(
+              onPressed: pickFiles,
+              icon: Icon(Icons.attach_file),
+              label: Text("Pick Files"),
+            ),
+            const SizedBox(height: 12),
+
+            if (selectedFiles.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text("No files selected."),
+              )
+            else
+              ...selectedFiles.map((file) => ListTile(
+                leading: Icon(Icons.insert_drive_file),
+                title: Text(file.name),
+                subtitle: Text("${(file.size / 1024).toStringAsFixed(2)} KB"),
+              )),
+
+            const SizedBox(height: 24),
+
             ElevatedButton.icon(
               onPressed: () {
                 if (courseNameController.text.isNotEmpty &&
@@ -160,6 +215,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
                     schedule: formatSchedules(),
                     color: colors[selectedColorIndex],
                     colorIndex: selectedColorIndex,
+                    attachments: selectedFiles, // ✅ Include attachments here
                   );
 
                   Provider.of<CourseProvider>(context, listen: false).addCourse(newCourse);
@@ -199,12 +255,9 @@ class _AddCoursePageState extends State<AddCoursePage> {
           controller: controller,
           decoration: InputDecoration(
             hintText: hint,
-            filled: true,
-            fillColor: Colors.grey[100],
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
             ),
           ),
         ),

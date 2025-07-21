@@ -1,5 +1,6 @@
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/pages/add_course_sreen.dart';
+import 'package:coursecompanion/views/pages/course_detail.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:coursecompanion/views/widgets/empty_state.dart';
@@ -28,24 +29,34 @@ class CoursesScreen extends StatelessWidget {
               itemCount: courses.length,
               itemBuilder: (context, index) {
                 final course = courses[index];
-                return Card(
-                  color: course.color.withOpacity(0.1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 16.0),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: course.color,
-                      child: Text(
-                        course.code[0],
-                        style: const TextStyle(color: Colors.white),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CourseDetailPage(course: course),
                       ),
+                    );
+                  },
+                  child: Card(
+                    color: course.color.withOpacity(0.1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    title: Text(course.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('${course.code} • ${course.instructor}'),
-                    trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                    margin: const EdgeInsets.only(bottom: 16.0),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: course.color,
+                        child: Text(
+                          course.code[0],
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      title: Text(course.title,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('${course.code} • ${course.instructor}'),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                    ),
                   ),
                 );
               },

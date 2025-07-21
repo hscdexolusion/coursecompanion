@@ -18,7 +18,7 @@ class _WidgetTreeState extends State<WidgetTree> {
      CoursesScreen(),
      DeadlinesScreen(),
      NotesScreen(),
-     SettingsScreen() 
+     //SettingsScreen() 
   ]; 
 
   @override
@@ -43,7 +43,7 @@ class _WidgetTreeState extends State<WidgetTree> {
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Courses'),
           NavigationDestination(icon: Icon(Icons.calendar_today), label: 'Deadlines'),
           NavigationDestination(icon: Icon(Icons.note), label: 'Notes'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+          //NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
                ]),
        ),  
     );

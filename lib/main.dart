@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:coursecompanion/providers/note_provider.dart';
 
-// ✅ Move MyApp here first
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
