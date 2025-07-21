@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:coursecompanion/providers/deadline_provider.dart';
 import 'package:coursecompanion/views/pages/add_deadline_screen.dart';
-import 'package:coursecompanion/views/widgets/empty_state.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 
 class DeadlinesScreen extends StatelessWidget {
@@ -34,21 +34,20 @@ class DeadlinesScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: const TabBarView(
-          children: [
-            EmptyState(
-              icon: Icons.calendar_today,
-              message: "You have no pending deadlines.",
-            ),
-            EmptyState(
-              icon: Icons.calendar_today,
-              message: "You haven't completed any deadlines yet.",
-            ),
-            EmptyState(
-              icon: Icons.calendar_today,
-              message: "No deadlines available.",
-            ),
-          ],
+        body: Consumer<DeadlineProvider>(
+          builder: (context, deadlineProvider, _) {
+            final pending = deadlineProvider.pendingDeadlines;
+            final completed = deadlineProvider.completedDeadlines;
+            final all = deadlineProvider.allDeadlines;
+
+            return TabBarView(
+              children: [
+                buildDeadlineList(pending, "You have no pending deadlines."),
+                buildDeadlineList(completed, "You haven't completed any deadlines yet."),
+                buildDeadlineList(all, "No deadlines available."),
+              ],
+            );
+          },
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blue,
@@ -63,6 +62,36 @@ class DeadlinesScreen extends StatelessWidget {
           child: const Icon(Icons.add),
         ),
       ),
+    );
+  }
+
+  Widget buildDeadlineList(List deadlines, String emptyMessage) {
+    if (deadlines.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.calendar_today, size: 50, color: Colors.grey),
+            const SizedBox(height: 10),
+            Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: deadlines.length,
+      itemBuilder: (context, index) {
+        final d = deadlines[index];
+        return ListTile(
+          title: Text(d.title),
+          subtitle: Text('${d.course} • Due: ${d.dueDate.toLocal()}'),
+          trailing: Icon(
+            d.isCompleted ? Icons.check_circle : Icons.pending,
+            color: d.isCompleted ? Colors.green : Colors.orange,
+          ),
+        );
+      },
     );
   }
 }

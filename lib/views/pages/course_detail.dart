@@ -5,6 +5,10 @@ import 'package:path/path.dart' as path;
 import 'package:coursecompanion/models/course_model.dart';
 import 'package:file_picker/file_picker.dart';
 
+import 'package:provider/provider.dart';
+import 'package:coursecompanion/providers/note_provider.dart';
+
+
 class CourseDetailPage extends StatefulWidget {
   final Course course;
 
@@ -34,7 +38,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
     for (var file in files) {
       final ext = path.extension(file.name).toLowerCase();
-      if (['.pdf', '.doc', '.docx', '.txt'].contains(ext)) {
+      if (['.pdf', '.doc', '.docx', '.txt','.pptx'].contains(ext)) {
         grouped['Documents']!.add(file);
       } else if (['.png', '.jpg', '.jpeg', '.gif'].contains(ext)) {
         grouped['Images']!.add(file);
@@ -86,6 +90,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         break;
       case 'Audios':
         type = FileType.audio;
+      case 'Notes':
+        type = FileType.custom;  
         break;
       default:
         type = FileType.any;
@@ -96,7 +102,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         type: type == FileType.custom
             ? FileType.custom
             : type,
-        allowedExtensions: folder == 'Documents' ? ['pdf', 'doc', 'docx', 'txt'] : null,
+        allowedExtensions: folder == 'Documents' ? ['pdf', 'doc', 'docx', 'txt','pptx'] : null,
       );
 
       if (result != null && result.files.isNotEmpty) {
@@ -112,98 +118,152 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final groupedAttachments = groupFiles(attachments);
+Widget build(BuildContext context) {
+  final groupedAttachments = groupFiles(attachments);
+  final noteProvider = Provider.of<NoteProvider>(context);
+  final courseNotes = noteProvider.notes
+      .where((note) => note.course == widget.course.title)
+      .toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.course.title),
-        backgroundColor: widget.course.color,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            Text('Course Code: ${widget.course.code}', 
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-            SizedBox(height: 8),
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.course.title),
+      backgroundColor: widget.course.color,
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          Text(
+            'Course Code: ${widget.course.code}',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Instructor: ${widget.course.instructor}',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Schedule: ${widget.course.schedule}',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Divider(thickness: 1, endIndent: 50, color: Colors.grey),
 
-            Text('Instructor: ${widget.course.instructor}', 
-            style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
+          Text('Attachments',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
 
-            Text('Schedule: ${widget.course.schedule}', 
-            style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)),
-            SizedBox(height: 20),
-             Divider(
-              thickness: 1,
-              endIndent: 50,
-              color: Colors.grey,
-             ),
+          // File Attachments
+          ...groupedAttachments.entries.toList().asMap().entries.map((entry) {
+            final index = entry.key;
+            final folder = entry.value.key;
+            final files = entry.value.value;
+            final isLast = index == groupedAttachments.length - 1;
 
-            Text('Attachments', 
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
-            ...groupedAttachments.entries.toList().asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final folder = entry.value.key;
-                  final files = entry.value.value;
-                  final isLast = index == groupedAttachments.length - 1;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ExpansionTile(
-                        leading: Icon(folderIcon(folder), color: widget.course.color),
-                        title: Text(folder, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        trailing: IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () => pickFileForFolder(folder),
-                        ),
-                        children: files.map((file) {
-                          return ListTile(
-                            leading: Icon(Icons.insert_drive_file),
-                            title: Text(file.name),
-                            subtitle: Text("${(file.size / 1024).toStringAsFixed(2)} KB"),
-                            trailing: IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text("Delete File"),
-                                    content: Text("Are you sure you want to delete this file?"),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: Text("Cancel"),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            attachments.remove(file);
-                                          });
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("Delete", style: TextStyle(color: Colors.red)),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ExpansionTile(
+                  leading:
+                      Icon(folderIcon(folder), color: widget.course.color),
+                  title: Text(folder,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  trailing: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () => pickFileForFolder(folder),
+                  ),
+                  children: files.map((file) {
+                    return ListTile(
+                      leading: Icon(Icons.insert_drive_file),
+                      title: Text(file.name),
+                      subtitle: Text(
+                          "${(file.size / 1024).toStringAsFixed(2)} KB"),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("Delete File"),
+                              content: Text(
+                                  "Are you sure you want to delete this file?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      attachments.remove(file);
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Delete",
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
                             ),
-                            onTap: () => openFile(file),
                           );
-                        }).toList(),
-      ),
-      if (!isLast) Divider(thickness: 1),
-    ],
-  );
-}),
+                        },
+                      ),
+                      onTap: () => openFile(file),
+                    );
+                  }).toList(),
+                ),
+                if (!isLast) Divider(thickness: 1),
+              ],
+            );
+          }),
 
-          ],
-        ),
+          // Notes Section
+          SizedBox(height: 16),
+          Divider(thickness: 1),
+          ExpansionTile(
+            leading: Icon(Icons.note, color: widget.course.color),
+            title: Text('Notes',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            children: courseNotes.isEmpty
+                ? [
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text('No notes found for this course.'),
+                    )
+                  ]
+                : courseNotes.map((note) {
+                    return ListTile(
+                      leading: Icon(Icons.description),
+                      title: Text(note.title),
+                      subtitle: Text(
+                        'Created: ${note.createdAt.toLocal().toString().split(' ')[0]}',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text(note.title),
+                            content: SingleChildScrollView(
+                              child: Text(note.content),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("Close"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }).toList(),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

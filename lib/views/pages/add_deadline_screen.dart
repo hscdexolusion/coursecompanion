@@ -1,6 +1,12 @@
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../providers/course_provider.dart';
+import '../../providers/deadline_provider.dart';
+import '../../models/deadline_model.dart';
+import 'package:uuid/uuid.dart';
+
 
 class AddDeadlineScreen extends StatefulWidget {
   const AddDeadlineScreen({super.key});
@@ -12,9 +18,9 @@ class AddDeadlineScreen extends StatefulWidget {
 class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  String? _title;
+  String? _note;
   String? _selectedCourse;
-  final List<String> _courses = [];
-
   DateTime? _selectedDate;
 
   String get formattedDate {
@@ -39,9 +45,11 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final courseProvider = Provider.of<CourseProvider>(context);
+    final courses = courseProvider.courses;
+
     return Scaffold(
-      //backgroundColor: const Color(0xFFF8FAFC),
-      appBar: CustomAppBar(title: 'Add Deadline', showBackButton: true,),
+      appBar: CustomAppBar(title: 'Add Deadline', showBackButton: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -76,6 +84,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
                   }
                   return null;
                 },
+                onSaved: (value) => _title = value,
               ),
               const SizedBox(height: 20),
 
@@ -84,34 +93,24 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 value: _selectedCourse,
-                hint: const Text("Select a course"),
-                items: _courses
-                    .map((course) => DropdownMenuItem(
-                          value: course,
-                          child: Text(course),
+                hint: Text(courses.isEmpty
+                    ? "No courses available"
+                    : "Select a course"),
+                items: courses
+                    .map((course) => DropdownMenuItem<String>(
+                          value: course.title,
+                          child: Text(course.title),
                         ))
                     .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCourse = value;
-                  });
-                },
+                onChanged: courses.isEmpty
+                    ? null
+                    : (value) => setState(() => _selectedCourse = value),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                      borderRadius: BorderRadius.circular(8)),
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                 ),
-                validator: (value) {
-                  if (_courses.isEmpty) {
-                    return 'No courses available. Please add courses first.';
-                  }
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a course';
-                  }
-                  return null;
-                },
               ),
               const SizedBox(height: 20),
 
@@ -133,6 +132,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
                   }
                   return null;
                 },
+                onSaved: (value) => _note = value,
               ),
               const SizedBox(height: 20),
 
@@ -165,28 +165,44 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               const SizedBox(height: 30),
 
               // Submit Button
-                              ElevatedButton.icon(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Save logic here
+              ElevatedButton.icon(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    if (_selectedDate == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Deadline saved!')),
+                        const SnackBar(content: Text('Please select a due date')),
                       );
+                      return;
                     }
-                  },
-                  icon: Icon(Icons.save),
-                  label: Text("Save Deadline"),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    minimumSize: Size(double.infinity, 50), // 👈 This makes it wide
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+
+                    _formKey.currentState!.save();
+
+                    final newDeadline = Deadline(
+                      id: const Uuid().v4(),
+                      title: _title!,
+                      note: _note!,
+                      course: _selectedCourse ?? 'Unassigned',
+                      dueDate: _selectedDate!,
+                    );
+
+                    Provider.of<DeadlineProvider>(context, listen: false)
+                        .addDeadline(newDeadline);
+
+                    Navigator.pop(context); // Go back to DeadlinesScreen
+                  }
+                },
+                icon: const Icon(Icons.save),
+                label: const Text("Save Deadline"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-
+              ),
             ],
           ),
         ),

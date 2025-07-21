@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:coursecompanion/providers/note_provider.dart';
+import 'package:coursecompanion/providers/deadline_provider.dart';
 
 
 class MyApp extends StatelessWidget {
@@ -34,6 +35,7 @@ void main() async{
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => CourseProvider()),
         ChangeNotifierProvider(create: (_) => NoteProvider()),
+        ChangeNotifierProvider(create: (_) => DeadlineProvider()),
       ],
       child: const MyApp(), 
     ),
