@@ -1,3 +1,4 @@
+import 'package:coursecompanion/views/pages/add_note_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
@@ -148,7 +149,7 @@ Widget build(BuildContext context) {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 20),
-          Divider(thickness: 1, endIndent: 50, color: Colors.grey),
+          Divider(thickness: 5, endIndent: 0, color: Colors.grey),
 
           Text('Attachments',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -221,44 +222,107 @@ Widget build(BuildContext context) {
           SizedBox(height: 16),
           Divider(thickness: 1),
           ExpansionTile(
-            leading: Icon(Icons.note, color: widget.course.color),
-            title: Text('Notes',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            children: courseNotes.isEmpty
-                ? [
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text('No notes found for this course.'),
-                    )
-                  ]
-                : courseNotes.map((note) {
-                    return ListTile(
-                      leading: Icon(Icons.description),
-                      title: Text(note.title),
-                      subtitle: Text(
-                        'Created: ${note.createdAt.toLocal().toString().split(' ')[0]}',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text(note.title),
-                            content: SingleChildScrollView(
-                              child: Text(note.content),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text("Close"),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }).toList(),
+      leading: Icon(Icons.note, color: widget.course.color),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Notes',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
+          IconButton(
+            icon: Icon(Icons.add, color: widget.course.color),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddNoteScreen(course: widget.course.title),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      children: courseNotes.isEmpty
+          ? [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text('No notes found for this course.'),
+              )
+            ]
+          : courseNotes.map((note) {
+              return ListTile(
+  leading: Icon(Icons.description),
+  title: Text(note.title),
+  subtitle: Text(
+    'Created: ${note.createdAt.toLocal().toString().split(' ')[0]}',
+    style: TextStyle(fontSize: 12),
+  ),
+  onTap: () {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(note.title),
+        content: SingleChildScrollView(
+          child: Text(note.content),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Close"),
+          ),
+        ],
+      ),
+    );
+  },
+  trailing: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        icon: Icon(Icons.edit, color: Colors.blue),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AddNoteScreen(
+                course: widget.course.title,
+                noteToEdit: note,
+              ),
+            ),
+          );
+        },
+      ),
+      IconButton(
+        icon: Icon(Icons.delete, color: Colors.red),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Delete Note"),
+              content: Text("Are you sure you want to delete this note?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Provider.of<NoteProvider>(context, listen: false)
+                        .deleteNote(note);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Delete", style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    ],
+  ),
+);
+            }).toList(),
+    ),
         ],
       ),
     ),

@@ -5,8 +5,16 @@ import 'package:provider/provider.dart';
 import 'package:coursecompanion/providers/note_provider.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 
-class NotesScreen extends StatelessWidget {
+class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
+
+  @override
+  State<NotesScreen> createState() => _NotesScreenState();
+}
+
+class _NotesScreenState extends State<NotesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -15,19 +23,17 @@ class NotesScreen extends StatelessWidget {
     final noteProvider = Provider.of<NoteProvider>(context);
     final notes = noteProvider.notes;
 
+    final filteredNotes = notes.where((note) {
+      final query = _searchQuery.toLowerCase();
+      return note.title.toLowerCase().contains(query) ||
+          note.content.toLowerCase().contains(query);
+    }).toList();
+
+
+  
+
     return Scaffold(
       appBar: CustomAppBar(
-        /*backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        title: const Text('Notes'),
-        centerTitle: true,
-        
-        actions: [
-          IconButton(
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () => themeProvider.toggleTheme(),
-          ),
-        ],*/
         title: 'Notes',
       ),
       body: Column(
@@ -35,6 +41,12 @@ class NotesScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge!.color,
               ),
@@ -43,7 +55,8 @@ class NotesScreen extends StatelessWidget {
                 hintStyle: TextStyle(
                   color: Theme.of(context).hintColor,
                 ),
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).iconTheme.color),
+                prefixIcon: Icon(Icons.search,
+                    color: Theme.of(context).iconTheme.color),
                 filled: true,
                 fillColor: Theme.of(context).cardColor,
                 border: OutlineInputBorder(
@@ -54,37 +67,119 @@ class NotesScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: notes.isEmpty
+            child: filteredNotes.isEmpty
                 ? Center(
                     child: Text(
-                      "You haven't created any notes yet.\nTap the + button to add your first note.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyLarge!.color),
+                      "No notes found for your search.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).textTheme.bodyLarge!.color,
+                      ),
                     ),
                   )
                 : ListView.builder(
-                    itemCount: notes.length,
+                    itemCount: filteredNotes.length,
                     itemBuilder: (context, index) {
-                      final note = notes[index];
+                      final note = filteredNotes[index];
                       return Card(
                         color: Theme.of(context).cardColor,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: Text(note.title),
+                                content: SingleChildScrollView(
+                                  child: Text(note.content),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context),
+                                    child: const Text("Close"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                           title: Text(
                             note.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.titleLarge!.color,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .color,
                             ),
                           ),
                           subtitle: Text(
                             note.content,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: Theme.of(context).textTheme.bodyMedium!.color,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .color,
                             ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                    color: Colors.green),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          AddNoteScreen(noteToEdit: note),
+                                    ),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.red),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      title: const Text("Delete Note"),
+                                      content: const Text(
+                                          "Are you sure you want to delete this note?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text("Cancel"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Provider.of<NoteProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .deleteNote(note);
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text(
+                                            "Delete",
+                                            style: TextStyle(
+                                                color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       );

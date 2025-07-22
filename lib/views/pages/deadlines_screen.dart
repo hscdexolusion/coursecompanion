@@ -66,32 +66,68 @@ class DeadlinesScreen extends StatelessWidget {
   }
 
   Widget buildDeadlineList(List deadlines, String emptyMessage) {
-    if (deadlines.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.calendar_today, size: 50, color: Colors.grey),
-            const SizedBox(height: 10),
-            Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: deadlines.length,
-      itemBuilder: (context, index) {
-        final d = deadlines[index];
-        return ListTile(
-          title: Text(d.title),
-          subtitle: Text('${d.course} • Due: ${d.dueDate.toLocal()}'),
-          trailing: Icon(
-            d.isCompleted ? Icons.check_circle : Icons.pending,
-            color: d.isCompleted ? Colors.green : Colors.orange,
-          ),
-        );
-      },
+  if (deadlines.isEmpty) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.calendar_today, size: 50, color: Colors.grey),
+          const SizedBox(height: 10),
+          Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+        ],
+      ),
     );
   }
+
+  return ListView.builder(
+    itemCount: deadlines.length,
+    itemBuilder: (context, index) {
+      final d = deadlines[index];
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: ListTile(
+          title: Text(d.title),
+          subtitle: Text('${d.course} • Due: ${d.dueDate.toLocal()}'),
+          trailing: PopupMenuButton<String>(
+            onSelected: (value) {
+              final provider = Provider.of<DeadlineProvider>(context, listen: false);
+              switch (value) {
+                case 'edit':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddDeadlineScreen(existingDeadline: d),
+                    ),
+                  );
+                  break;
+                case 'complete':
+                  provider.markAsCompleted(d);
+                  break;
+                case 'delete':
+                  provider.deleteDeadline(d);
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              List<PopupMenuEntry<String>> items = [];
+              if (!d.isCompleted) {
+                items.addAll([
+                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                  const PopupMenuItem(value: 'complete', child: Text('Mark as Completed')),
+                ]);
+              }
+              items.add(const PopupMenuItem(value: 'delete', child: Text('Delete')));
+              return items;
+            },
+            icon: const Icon(Icons.more_vert),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+  
+  
 }
