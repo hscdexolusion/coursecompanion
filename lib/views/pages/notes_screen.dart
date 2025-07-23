@@ -106,8 +106,7 @@ class _NotesScreenState extends State<NotesScreen> {
                               color: Colors.blue, 
                               width: 1.0,
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                            //color: Theme.of(context).cardColor, 
+                            borderRadius: BorderRadius.circular(10),                            
                           ),
                           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         child: Card(
