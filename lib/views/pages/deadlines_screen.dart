@@ -42,9 +42,9 @@ class DeadlinesScreen extends StatelessWidget {
 
             return TabBarView(
               children: [
-                buildDeadlineList(pending, "You have no pending deadlines."),
-                buildDeadlineList(completed, "You haven't completed any deadlines yet."),
-                buildDeadlineList(all, "No deadlines available."),
+                buildDeadlineList(pending, "You have no pending deadlines.", context,"Pending"),
+                buildDeadlineList(completed, "You haven't completed any deadlines yet.", context,"Completed"),
+                buildDeadlineList(all, "No deadlines available.", context,"All"),
               ],
             );
           },
@@ -65,7 +65,7 @@ class DeadlinesScreen extends StatelessWidget {
     );
   }
 
-  Widget buildDeadlineList(List deadlines, String emptyMessage) {
+  Widget buildDeadlineList(List deadlines, String emptyMessage, BuildContext context, String Tab) {
   if (deadlines.isEmpty) {
     return Center(
       child: Column(
@@ -108,17 +108,22 @@ class DeadlinesScreen extends StatelessWidget {
                   break;
               }
             },
-            itemBuilder: (BuildContext context) {
-              List<PopupMenuEntry<String>> items = [];
-              if (!d.isCompleted) {
-                items.addAll([
-                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                  const PopupMenuItem(value: 'complete', child: Text('Mark as Completed')),
-                ]);
-              }
-              items.add(const PopupMenuItem(value: 'delete', child: Text('Delete')));
-              return items;
-            },
+            itemBuilder: (context) {
+                  List<PopupMenuEntry<String>> menuItems = [
+                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                  ];
+
+                  if (Tab == 'Pending') {
+                    // Only add Edit and Complete for Pending tab
+                    menuItems.insertAll(0, [
+                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      const PopupMenuItem(value: 'complete', child: Text('Mark as Completed')),
+                    ]);
+                  }
+
+                  return menuItems;
+                },
+
             icon: const Icon(Icons.more_vert),
           ),
         ),

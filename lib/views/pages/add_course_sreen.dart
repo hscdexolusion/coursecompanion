@@ -8,16 +8,21 @@ import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 
 class AddCoursePage extends StatefulWidget {
-  const AddCoursePage({super.key});
+  final Course? course;
+
+  const AddCoursePage({super.key, this.course});
 
   @override
   _AddCoursePageState createState() => _AddCoursePageState();
 }
 
+
 class _AddCoursePageState extends State<AddCoursePage> {
   final TextEditingController courseNameController = TextEditingController();
   final TextEditingController courseCodeController = TextEditingController();
   final TextEditingController instructorController = TextEditingController();
+  List<Map<String, String>> _schedule = [];
+
 
   int selectedColorIndex = 0;
 
@@ -208,13 +213,14 @@ class _AddCoursePageState extends State<AddCoursePage> {
                 if (courseNameController.text.isNotEmpty &&
                     courseCodeController.text.isNotEmpty) {
                   final newCourse = Course(
+                    id: widget.course?.id ?? UniqueKey().toString(),
                     title: courseNameController.text,
                     code: courseCodeController.text,
                     instructor: instructorController.text,
-                    schedule: formatSchedules(),
+                    schedule: _schedule,
                     color: colors[selectedColorIndex],
                     colorIndex: selectedColorIndex,
-                    attachments: selectedFiles, // ✅ Include attachments here
+                    attachments: selectedFiles, 
                   );
 
                   Provider.of<CourseProvider>(context, listen: false).addCourse(newCourse);

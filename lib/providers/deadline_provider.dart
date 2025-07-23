@@ -36,6 +36,9 @@ void deleteDeadline(Deadline deadline) {
     notifyListeners();
   }
 
+  
+
+
   void toggleCompletion(String id) {
     final deadline = _deadlines.firstWhere((d) => d.id == id);
     deadline.isCompleted = !deadline.isCompleted;
@@ -46,4 +49,12 @@ void deleteDeadline(Deadline deadline) {
     _deadlines.removeWhere((d) => d.id == id);
     notifyListeners();
   }*/
+
+  void updateDeadline(String id, Deadline updatedDeadline) {
+    final index = _deadlines.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      _deadlines[index] = updatedDeadline;
+      notifyListeners();
+    }
+  }
 }

@@ -10,4 +10,18 @@ class CourseProvider with ChangeNotifier {
     _courses.add(course);
     notifyListeners();
   }
+
+  void updateCourse(Course updatedCourse) {
+  final index = _courses.indexWhere((c) => c.id == updatedCourse.id);
+  if (index != -1) {
+    _courses[index] = updatedCourse;
+    notifyListeners();
+  }
+}
+
+void removeCourse(String id) {
+    _courses.removeWhere((course) => course.id == id);
+    notifyListeners();
+  }
+
 }

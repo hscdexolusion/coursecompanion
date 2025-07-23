@@ -57,6 +57,7 @@ class CoursesScreen extends StatelessWidget {
                         : course.color.withOpacity(0.1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
+                      
                     ),
                     margin: const EdgeInsets.only(bottom: 16.0),
                     child: ListTile(

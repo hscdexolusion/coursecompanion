@@ -41,36 +41,55 @@ class _NotesScreenState extends State<NotesScreen> {
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge!.color,
-              ),
-              decoration: InputDecoration(
-                hintText: "Search notes...",
-                hintStyle: TextStyle(
-                  color: Theme.of(context).hintColor,
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                },
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodyLarge!.color,
                 ),
-                prefixIcon: Icon(Icons.search,
-                    color: Theme.of(context).iconTheme.color),
-                filled: true,
-                fillColor: Theme.of(context).cardColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
+                decoration: InputDecoration(
+                  hintText: "Search notes...",
+                  hintStyle: TextStyle(
+                    color: Theme.of(context).hintColor,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                  
+                  // Add visible borders that adapt to the theme (inverse logic)
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white70
+                          : Colors.black54,
+                      width: 1.2,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      width: 1.5,
+                    ),
+                  ),
                 ),
               ),
-            ),
+
           ),
           Expanded(
             child: filteredNotes.isEmpty
                 ? Center(
                     child: Text(
-                      "No notes found for your search.",
+                      "No notes currently available.",
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).textTheme.bodyLarge!.color,
@@ -81,105 +100,114 @@ class _NotesScreenState extends State<NotesScreen> {
                     itemCount: filteredNotes.length,
                     itemBuilder: (context, index) {
                       final note = filteredNotes[index];
-                      return Card(
-                        color: Theme.of(context).cardColor,
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                title: Text(note.title),
-                                content: SingleChildScrollView(
-                                  child: Text(note.content),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context),
-                                    child: const Text("Close"),
+                      return Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.blue, 
+                              width: 1.0,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            //color: Theme.of(context).cardColor, 
+                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Card(
+                          //elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          child: ListTile(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  title: Text(note.title),
+                                  content: SingleChildScrollView(
+                                    child: Text(note.content),
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                          title: Text(
-                            note.title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge!
-                                  .color,
-                            ),
-                          ),
-                          subtitle: Text(
-                            note.content,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .color,
-                            ),
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit,
-                                    color: Colors.green),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          AddNoteScreen(noteToEdit: note),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context),
+                                      child: const Text("Close"),
                                     ),
-                                  );
-                                },
+                                  ],
+                                ),
+                              );
+                            },
+                            title: Text(
+                              note.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .color,
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.red),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: const Text("Delete Note"),
-                                      content: const Text(
-                                          "Are you sure you want to delete this note?"),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text("Cancel"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Provider.of<NoteProvider>(
-                                                    context,
-                                                    listen: false)
-                                                .deleteNote(note);
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text(
-                                            "Delete",
-                                            style: TextStyle(
-                                                color: Colors.red),
+                            ),
+                            subtitle: Text(
+                              note.content,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .color,
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.green),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            AddNoteScreen(noteToEdit: note),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text("Delete Note"),
+                                        content: const Text(
+                                            "Are you sure you want to delete this note?"),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text("Cancel"),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                                          TextButton(
+                                            onPressed: () {
+                                              Provider.of<NoteProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .deleteNote(note);
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                  color: Colors.red),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

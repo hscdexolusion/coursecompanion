@@ -7,16 +7,14 @@ import '../../providers/deadline_provider.dart';
 import '../../models/deadline_model.dart';
 import 'package:uuid/uuid.dart';
 
-
 class AddDeadlineScreen extends StatefulWidget {
   final Deadline? existingDeadline;
 
   const AddDeadlineScreen({Key? key, this.existingDeadline}) : super(key: key);
-  
+
   @override
   State<AddDeadlineScreen> createState() => _AddDeadlineScreenState();
 }
-
 
 class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   final _formKey = GlobalKey<FormState>();
@@ -26,6 +24,17 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   String? _selectedCourse;
   DateTime? _selectedDate;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.existingDeadline != null) {
+      _title = widget.existingDeadline!.title;
+      _note = widget.existingDeadline!.note;
+      _selectedCourse = widget.existingDeadline!.course;
+      _selectedDate = widget.existingDeadline!.dueDate;
+    }
+  }
+
   String get formattedDate {
     if (_selectedDate == null) return 'Select a deadline date';
     return DateFormat.yMMMMd().format(_selectedDate!);
@@ -34,7 +43,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   Future<void> _pickDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
     );
@@ -52,7 +61,10 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
     final courses = courseProvider.courses;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Add Deadline', showBackButton: true),
+      appBar: CustomAppBar(
+        title: widget.existingDeadline != null ? 'Edit Deadline' : 'Add Deadline',
+        showBackButton: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -60,7 +72,6 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Text(
@@ -73,6 +84,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               const Text('Deadline Title'),
               const SizedBox(height: 6),
               TextFormField(
+                initialValue: _title,
                 decoration: InputDecoration(
                   hintText: 'Enter Deadline title...',
                   border: OutlineInputBorder(
@@ -121,6 +133,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               const Text('Note Content'),
               const SizedBox(height: 6),
               TextFormField(
+                initialValue: _note,
                 maxLines: 8,
                 decoration: InputDecoration(
                   hintText: 'Write your notes here...',
@@ -178,20 +191,46 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
                       return;
                     }
 
+                    if (_selectedDate!.isBefore(DateTime.now())) {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Invalid Date'),
+                          content: const Text('You cannot select a past date for a deadline.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+
                     _formKey.currentState!.save();
+                    final provider = Provider.of<DeadlineProvider>(context, listen: false);
 
-                    final newDeadline = Deadline(
-                      id: const Uuid().v4(),
-                      title: _title!,
-                      note: _note!,
-                      course: _selectedCourse ?? 'Unassigned',
-                      dueDate: _selectedDate!,
-                    );
+                    if (widget.existingDeadline != null) {
+                      final updatedDeadline = widget.existingDeadline!.copyWith(
+                        title: _title!,
+                        note: _note!,
+                        course: _selectedCourse ?? 'Unassigned',
+                        dueDate: _selectedDate!,
+                      );
+                      provider.updateDeadline(widget.existingDeadline!.id,updatedDeadline);
+                    } else {
+                      final newDeadline = Deadline(
+                        id: const Uuid().v4(),
+                        title: _title!,
+                        note: _note!,
+                        course: _selectedCourse ?? 'Unassigned',
+                        dueDate: _selectedDate!,
+                      );
+                      provider.addDeadline(newDeadline);
+                    }
 
-                    Provider.of<DeadlineProvider>(context, listen: false)
-                        .addDeadline(newDeadline);
-
-                    Navigator.pop(context); // Go back to DeadlinesScreen
+                    Navigator.pop(context);
                   }
                 },
                 icon: const Icon(Icons.save),
