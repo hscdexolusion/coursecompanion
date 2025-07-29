@@ -21,7 +21,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
   final TextEditingController courseNameController = TextEditingController();
   final TextEditingController courseCodeController = TextEditingController();
   final TextEditingController instructorController = TextEditingController();
-  List<Map<String, String>> _schedule = [];
+  final List<Map<String, String>> _schedule = [];
 
 
   int selectedColorIndex = 0;

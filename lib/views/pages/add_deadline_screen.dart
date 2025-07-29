@@ -10,7 +10,7 @@ import 'package:uuid/uuid.dart';
 class AddDeadlineScreen extends StatefulWidget {
   final Deadline? existingDeadline;
 
-  const AddDeadlineScreen({Key? key, this.existingDeadline}) : super(key: key);
+  const AddDeadlineScreen({super.key, this.existingDeadline});
 
   @override
   State<AddDeadlineScreen> createState() => _AddDeadlineScreenState();

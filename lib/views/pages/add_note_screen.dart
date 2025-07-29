@@ -9,7 +9,7 @@ class AddNoteScreen extends StatefulWidget {
   final Note? noteToEdit;
   final String? course;
 
-  const AddNoteScreen({Key? key, this.noteToEdit, this.course}) : super(key: key);
+  const AddNoteScreen({super.key, this.noteToEdit, this.course});
 
   @override
   State<AddNoteScreen> createState() => _AddNoteScreenState();
