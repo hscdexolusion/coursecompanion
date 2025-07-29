@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/course_model.dart';
 import '../../providers/course_provider.dart';
 import '../widgets/custom_app_bar.dart';
+import '../theme/theme_provider.dart';
 
 class EditCourseScreen extends StatefulWidget {
   final Course course;
@@ -123,6 +124,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: CustomAppBar(title: 'Edit Course', showBackButton: true),
       body: Padding(
@@ -178,15 +180,32 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
               const SizedBox(height: 30),
 
               // Save Button
-              ElevatedButton.icon(
-                onPressed: _saveChanges,
-                icon: const Icon(Icons.save),
-                label: const Text('Save Changes'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+              Container(
+                decoration: BoxDecoration(
+                  gradient: themeProvider.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: _saveChanges,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save Changes'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
               ),
             ],

@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'COURSE COMPANION',
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
       themeMode: themeProvider.themeMode,
       home: OnboardingScreen(),
     );

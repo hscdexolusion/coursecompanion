@@ -16,7 +16,11 @@ class DeadlinesScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.blue,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: themeProvider.primaryGradient,
+            ),
+          ),
           foregroundColor: Colors.white,
           title: const Text('Deadlines'),
           centerTitle: true,
@@ -26,7 +30,10 @@ class DeadlinesScreen extends StatelessWidget {
               onPressed: () => themeProvider.toggleTheme(),
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
+            indicatorColor: Colors.white.withOpacity(0.3),
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white.withOpacity(0.7),
             tabs: [
               Tab(text: "Pending"),
               Tab(text: "Completed"),
@@ -49,17 +56,31 @@ class DeadlinesScreen extends StatelessWidget {
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.blue,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AddDeadlineScreen()),
-            );
-          },
-          tooltip: 'Add Deadline',
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add),
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            gradient: themeProvider.floatingActionButtonGradient,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddDeadlineScreen()),
+              );
+            },
+            tooltip: 'Add Deadline',
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );
@@ -83,8 +104,26 @@ class DeadlinesScreen extends StatelessWidget {
     itemCount: deadlines.length,
     itemBuilder: (context, index) {
       final d = deadlines[index];
-      return Card(
+      return Container(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.orange.withOpacity(0.2),
+              Colors.orange.withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: ListTile(
           title: Text(d.title),
           subtitle: Text('${d.course} • Due: ${d.dueDate.toLocal()}'),

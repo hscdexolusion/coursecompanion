@@ -101,20 +101,26 @@ class _NotesScreenState extends State<NotesScreen> {
                     itemBuilder: (context, index) {
                       final note = filteredNotes[index];
                       return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.blue, 
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(10),                            
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.green.withOpacity(0.2),
+                              Colors.green.withOpacity(0.05),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Card(
-                          //elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.green.withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                          child: ListTile(
+                          ],
+                        ),
+                        child: ListTile(
                             onTap: () {
                               showDialog(
                                 context: context,
@@ -208,25 +214,37 @@ class _NotesScreenState extends State<NotesScreen> {
                               ],
                             ),
                           ),
-                        ),
                       );
                     },
                   ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddNoteScreen()),
-          );
-        },
-        tooltip: 'Add Note',
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: themeProvider.floatingActionButtonGradient,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddNoteScreen()),
+            );
+          },
+          tooltip: 'Add Note',
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

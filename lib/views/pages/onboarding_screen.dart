@@ -20,8 +20,12 @@ class OnboardingScreen extends StatelessWidget {
       backgroundColor: isDark ? Colors.grey[900] : Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: isDark ? Colors.white : Colors.black,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: themeProvider.primaryGradient,
+          ),
+        ),
+        foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -60,8 +64,19 @@ class OnboardingScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 60), // Space before button
-              SizedBox(
+              Container(
                 width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: themeProvider.primaryGradient,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -71,8 +86,9 @@ class OnboardingScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: Colors.transparent,
                     foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
