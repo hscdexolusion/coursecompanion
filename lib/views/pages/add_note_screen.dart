@@ -1,4 +1,5 @@
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
+import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/note_model.dart';
@@ -66,6 +67,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   @override
   Widget build(BuildContext context) {
     final courseProvider = Provider.of<CourseProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final courses = courseProvider.courses;
 
     return Scaffold(
@@ -131,15 +133,29 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
               const SizedBox(height: 20),
 
-              ElevatedButton.icon(
-                onPressed: _saveNote,
-                icon: Icon(Icons.save),
-                label: Text(widget.noteToEdit == null ? "Add Note" : "Update Note"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: themeProvider.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: _saveNote,
+                  icon: Icon(Icons.save),
+                  label: Text(widget.noteToEdit == null ? "Add Note" : "Update Note"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ),
             ],

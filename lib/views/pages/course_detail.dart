@@ -2,6 +2,7 @@
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/pages/add_note_screen.dart';
 import 'package:coursecompanion/views/pages/edit_course_screen.dart';
+import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
@@ -149,6 +150,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   @override
   Widget build(BuildContext context) {
     final courseProvider = Provider.of<CourseProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final updatedCourse = courseProvider.courses.firstWhere((c) => c.id == widget.course.id, orElse: () => widget.course);
     final groupedAttachments = groupFiles(attachments);
     final noteProvider = Provider.of<NoteProvider>(context);
@@ -159,7 +161,18 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(updatedCourse.title),
-        backgroundColor: updatedCourse.color,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                updatedCourse.color,
+                updatedCourse.color.withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),

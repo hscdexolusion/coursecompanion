@@ -1,4 +1,5 @@
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
+import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +59,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   @override
   Widget build(BuildContext context) {
     final courseProvider = Provider.of<CourseProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final courses = courseProvider.courses;
 
     return Scaffold(
@@ -181,67 +183,81 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               const SizedBox(height: 30),
 
               // Submit Button
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    if (_selectedDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please select a due date')),
-                      );
-                      return;
+              Container(
+                decoration: BoxDecoration(
+                  gradient: themeProvider.primaryGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      if (_selectedDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please select a due date')),
+                        );
+                        return;
+                      }
+
+                      if (_selectedDate!.isBefore(DateTime.now())) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Invalid Date'),
+                            content: const Text('You cannot select a past date for a deadline.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        return;
+                      }
+
+                      _formKey.currentState!.save();
+                      final provider = Provider.of<DeadlineProvider>(context, listen: false);
+
+                      if (widget.existingDeadline != null) {
+                        final updatedDeadline = widget.existingDeadline!.copyWith(
+                          title: _title!,
+                          note: _note!,
+                          course: _selectedCourse ?? 'Unassigned',
+                          dueDate: _selectedDate!,
+                        );
+                        provider.updateDeadline(widget.existingDeadline!.id,updatedDeadline);
+                      } else {
+                        final newDeadline = Deadline(
+                          id: const Uuid().v4(),
+                          title: _title!,
+                          note: _note!,
+                          course: _selectedCourse ?? 'Unassigned',
+                          dueDate: _selectedDate!,
+                        );
+                        provider.addDeadline(newDeadline);
+                      }
+
+                      Navigator.pop(context);
                     }
-
-                    if (_selectedDate!.isBefore(DateTime.now())) {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Invalid Date'),
-                          content: const Text('You cannot select a past date for a deadline.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
-                      );
-                      return;
-                    }
-
-                    _formKey.currentState!.save();
-                    final provider = Provider.of<DeadlineProvider>(context, listen: false);
-
-                    if (widget.existingDeadline != null) {
-                      final updatedDeadline = widget.existingDeadline!.copyWith(
-                        title: _title!,
-                        note: _note!,
-                        course: _selectedCourse ?? 'Unassigned',
-                        dueDate: _selectedDate!,
-                      );
-                      provider.updateDeadline(widget.existingDeadline!.id,updatedDeadline);
-                    } else {
-                      final newDeadline = Deadline(
-                        id: const Uuid().v4(),
-                        title: _title!,
-                        note: _note!,
-                        course: _selectedCourse ?? 'Unassigned',
-                        dueDate: _selectedDate!,
-                      );
-                      provider.addDeadline(newDeadline);
-                    }
-
-                    Navigator.pop(context);
-                  }
-                },
-                icon: const Icon(Icons.save),
-                label: const Text("Save Deadline"),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  },
+                  icon: const Icon(Icons.save),
+                  label: const Text("Save Deadline"),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
               ),

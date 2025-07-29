@@ -18,6 +18,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       automaticallyImplyLeading: false,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: themeProvider.primaryGradient,
+        ),
+      ),
       leading: showBackButton
           ? IconButton(
               icon: const Icon(Icons.arrow_back),
@@ -35,7 +40,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
       ],
-      backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
       centerTitle: true,
     );

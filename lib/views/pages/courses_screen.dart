@@ -19,9 +19,14 @@ class CoursesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue, // Always blue
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: themeProvider.primaryGradient,
+          ),
+        ),
         foregroundColor: Colors.white,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text('Courses'),
         actions: [
           IconButton(
@@ -51,15 +56,26 @@ class CoursesScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Card(
-                    color: isDark
-                        ? course.color.withOpacity(0.2)
-                        : course.color.withOpacity(0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      
-                    ),
+                  child: Container(
                     margin: const EdgeInsets.only(bottom: 16.0),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          course.color.withOpacity(isDark ? 0.3 : 0.2),
+                          course.color.withOpacity(isDark ? 0.1 : 0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: course.color.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: course.color,
@@ -90,18 +106,31 @@ class CoursesScreen extends StatelessWidget {
             ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
-        child: FloatingActionButton(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AddCoursePage()),
-            );
-          },
-          tooltip: 'Add Course',
-          shape: const CircleBorder(),
-          child: const Icon(Icons.add),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: themeProvider.floatingActionButtonGradient,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddCoursePage()),
+              );
+            },
+            tooltip: 'Add Course',
+            shape: const CircleBorder(),
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,

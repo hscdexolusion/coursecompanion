@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:coursecompanion/models/course_model.dart';
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
+import 'package:coursecompanion/views/theme/theme_provider.dart';
 
 import 'package:file_picker/file_picker.dart';
 
@@ -138,6 +139,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: CustomAppBar(title: "Add New Course", showBackButton: true),
       body: Padding(
@@ -208,38 +210,52 @@ class _AddCoursePageState extends State<AddCoursePage> {
 
             const SizedBox(height: 24),
 
-            ElevatedButton.icon(
-              onPressed: () {
-                if (courseNameController.text.isNotEmpty &&
-                    courseCodeController.text.isNotEmpty) {
-                  final newCourse = Course(
-                    id: widget.course?.id ?? UniqueKey().toString(),
-                    title: courseNameController.text,
-                    code: courseCodeController.text,
-                    instructor: instructorController.text,
-                    schedule: _schedule,
-                    color: colors[selectedColorIndex],
-                    colorIndex: selectedColorIndex,
-                    attachments: selectedFiles, 
-                  );
+            Container(
+              decoration: BoxDecoration(
+                gradient: themeProvider.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  if (courseNameController.text.isNotEmpty &&
+                      courseCodeController.text.isNotEmpty) {
+                    final newCourse = Course(
+                      id: widget.course?.id ?? UniqueKey().toString(),
+                      title: courseNameController.text,
+                      code: courseCodeController.text,
+                      instructor: instructorController.text,
+                      schedule: _schedule,
+                      color: colors[selectedColorIndex],
+                      colorIndex: selectedColorIndex,
+                      attachments: selectedFiles, 
+                    );
 
-                  Provider.of<CourseProvider>(context, listen: false).addCourse(newCourse);
+                    Provider.of<CourseProvider>(context, listen: false).addCourse(newCourse);
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Course added!')),
-                  );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Course added!')),
+                    );
 
-                  Navigator.pop(context);
-                }
-              },
-              icon: Icon(Icons.save),
-              label: Text("Save Course"),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                    Navigator.pop(context);
+                  }
+                },
+                icon: Icon(Icons.save),
+                label: Text("Save Course"),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             )
