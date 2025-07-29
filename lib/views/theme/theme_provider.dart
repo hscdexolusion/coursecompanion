@@ -72,13 +72,13 @@ class ThemeProvider with ChangeNotifier {
         fontWeight: FontWeight.bold,
       ),
     ),
-    cardTheme: CardTheme(
+   /* cardTheme: CardTheme(
       elevation: 8,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-    ),
+    ),*/
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       elevation: 8,
       shape: CircleBorder(),
@@ -101,13 +101,13 @@ class ThemeProvider with ChangeNotifier {
         fontWeight: FontWeight.bold,
       ),
     ),
-    cardTheme: CardTheme(
+   /* cardTheme: CardTheme(
       elevation: 8,
       shadowColor: Colors.black.withOpacity(0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-    ),
+    ),*/
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       elevation: 8,
       shape: CircleBorder(),
