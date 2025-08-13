@@ -10,6 +10,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+// 1️⃣ Create a global instance of the plugin
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -28,10 +31,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 2️⃣ Initialize Timezone
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Africa/Accra')); // Change if needed
+
+  // 3️⃣ Configure Notification Settings
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  final InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  // Keep your system UI mode
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom]);
+
+  // 4️⃣ Run App with Providers
   runApp(
     MultiProvider(
       providers: [
@@ -40,7 +60,7 @@ void main() async{
         ChangeNotifierProvider(create: (_) => NoteProvider()),
         ChangeNotifierProvider(create: (_) => DeadlineProvider()),
       ],
-      child: const MyApp(), 
+      child: const MyApp(),
     ),
   );
 }
