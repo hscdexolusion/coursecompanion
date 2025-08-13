@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:coursecompanion/providers/note_provider.dart';
 import 'package:coursecompanion/providers/deadline_provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 
 class MyApp extends StatelessWidget {
