@@ -20,7 +20,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
   late String _code;
   late String _instructor;
 
-  List<Map<String, String>> _schedules = [];
+  late List<Map<String, String>> _schedules;
   final List<String> weekdays = [
     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
   ];
@@ -32,15 +32,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
     _code = widget.course.code;
     _instructor = widget.course.instructor;
 
-    // Parse existing schedule into a list of maps
-    if (widget.course.schedule.isNotEmpty) {
-      _schedules = widget.course.schedule.map<Map<String, String>>((item) {
-        return {
-          'day': item['day']!,
-          'time': item['time']!,
-        };
-      }).toList();
-    }
+    _schedules = List<Map<String, String>>.from(widget.course.schedule);
   }
 
   void _addSchedule() async {
@@ -84,7 +76,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
                 setState(() {
                   _schedules.add({
                     'day': selectedDay!,
-                    'time': selectedTime!.format(context)
+                    'time': selectedTime!.format(context),
                   });
                 });
                 Navigator.pop(context);
@@ -117,7 +109,6 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
       );
 
       Provider.of<CourseProvider>(context, listen: false).updateCourse(updatedCourse);
-
       Navigator.pop(context); // Return to course detail screen
     }
   }
@@ -164,7 +155,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
               const SizedBox(height: 24),
 
               // Schedule Section
-              Text("Schedule", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text("Schedule", style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,8 +163,8 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
                   ..._schedules.map((s) => Text("• ${s['day']} at ${s['time']}")),
                   TextButton.icon(
                     onPressed: _addSchedule,
-                    icon: Icon(Icons.add),
-                    label: Text("Add Meeting Day & Time"),
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add Meeting Day & Time"),
                   )
                 ],
               ),

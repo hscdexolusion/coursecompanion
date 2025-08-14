@@ -1,4 +1,5 @@
 import 'package:coursecompanion/views/pages/onboarding_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,11 @@ Future<void> main() async {
   // Lock system UI mode
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom]);
+
+       await Supabase.initialize(
+    url: 'https://jmyxsxrnjnjafstqnhdh.supabase.co',  // Replace with your project URL
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpteXhzeHJuam5qYWZzdHFuaGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxOTg3NDgsImV4cCI6MjA3MDc3NDc0OH0.XwYiqDnoqCGChq51PVpz0SxtZ99Xx0Xf2hs1QMpFBSM',                 // Replace with your anon/public key
+  );
 
   // Run app with providers
   runApp(

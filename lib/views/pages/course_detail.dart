@@ -1,4 +1,3 @@
-
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/pages/add_note_screen.dart';
 import 'package:coursecompanion/views/pages/edit_course_screen.dart';
@@ -8,10 +7,8 @@ import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 import 'package:coursecompanion/models/course_model.dart';
 import 'package:file_picker/file_picker.dart';
-
 import 'package:provider/provider.dart';
 import 'package:coursecompanion/providers/note_provider.dart';
-
 
 class CourseDetailPage extends StatefulWidget {
   final Course course;
@@ -42,7 +39,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
     for (var file in files) {
       final ext = path.extension(file.name).toLowerCase();
-      if (['.pdf', '.doc', '.docx', '.txt','.pptx'].contains(ext)) {
+      if (['.pdf', '.doc', '.docx', '.txt', '.pptx'].contains(ext)) {
         grouped['Documents']!.add(file);
       } else if (['.png', '.jpg', '.jpeg', '.gif'].contains(ext)) {
         grouped['Images']!.add(file);
@@ -54,7 +51,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         grouped['Others']!.add(file);
       }
     }
-
     return grouped;
   }
 
@@ -74,14 +70,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 
   void openFile(PlatformFile file) {
-    if (file.path != null) {
-      OpenFile.open(file.path);
-    }
+    if (file.path != null) OpenFile.open(file.path);
   }
 
   Future<void> pickFileForFolder(String folder) async {
     FileType type;
-
     switch (folder) {
       case 'Documents':
         type = FileType.custom;
@@ -95,21 +88,15 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       case 'Audios':
         type = FileType.audio;
         break;
-      case 'Notes':
-        type = FileType.custom;  
-        break;
       default:
         type = FileType.any;
     }
 
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: type == FileType.custom
-            ? FileType.custom
-            : type,
-        allowedExtensions: folder == 'Documents' ? ['pdf', 'doc', 'docx', 'txt','pptx'] : null,
+        type: type == FileType.custom ? FileType.custom : type,
+        allowedExtensions: folder == 'Documents' ? ['pdf', 'doc', 'docx', 'txt', 'pptx'] : null,
       );
-
       if (result != null && result.files.isNotEmpty) {
         setState(() {
           attachments.addAll(result.files);
@@ -129,14 +116,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         title: const Text('Delete Course'),
         content: const Text('Are you sure you want to delete this course? This action cannot be undone.'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              Provider.of<CourseProvider>(context, listen: false)
-                  .removeCourse(course.id);
+              Provider.of<CourseProvider>(context, listen: false).removeCourse(course.id);
               Navigator.of(ctx).pop();
               Navigator.of(context).pop();
             },
@@ -147,6 +130,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     );
   }
 
+  String formatSchedule(List<Map<String, String>> schedule) {
+    if (schedule.isEmpty) return 'Unscheduled';
+    return schedule.map((s) => "${s['day']} at ${s['time']}").join(', ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final courseProvider = Provider.of<CourseProvider>(context);
@@ -154,9 +142,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     final updatedCourse = courseProvider.courses.firstWhere((c) => c.id == widget.course.id, orElse: () => widget.course);
     final groupedAttachments = groupFiles(attachments);
     final noteProvider = Provider.of<NoteProvider>(context);
-    final courseNotes = noteProvider.notes
-        .where((note) => note.course == updatedCourse.title)
-        .toList();
+    final courseNotes = noteProvider.notes.where((note) => note.course == updatedCourse.title).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -164,10 +150,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                updatedCourse.color,
-                updatedCourse.color.withOpacity(0.8),
-              ],
+              colors: [updatedCourse.color, updatedCourse.color.withOpacity(0.8)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -180,19 +163,15 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => EditCourseScreen(course: updatedCourse),
-                ),
+                MaterialPageRoute(builder: (_) => EditCourseScreen(course: updatedCourse)),
               );
-              setState(() {}); // Refresh the UI after editing
+              setState(() {});
             },
           ),
           IconButton(
             icon: const Icon(Icons.delete),
             tooltip: 'Delete Course',
-            onPressed: () {
-              _confirmDeleteCourse(context, updatedCourse);
-            },
+            onPressed: () => _confirmDeleteCourse(context, updatedCourse),
           ),
         ],
       ),
@@ -200,82 +179,35 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            Text(
-              'Course Code: ${updatedCourse.code}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text('Course Code: ${updatedCourse.code}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            Text(
-              'Instructor: ${updatedCourse.instructor}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text('Instructor: ${updatedCourse.instructor}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            Text(
-              'Schedule: ${updatedCourse.schedule}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text('Schedule: ${formatSchedule(updatedCourse.schedule)}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
             Divider(thickness: 5, color: Colors.grey),
-            Text('Attachments',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ...groupedAttachments.entries.toList().asMap().entries.map((entry) {
-              final index = entry.key;
-              final folder = entry.value.key;
-              final files = entry.value.value;
-              final isLast = index == groupedAttachments.length - 1;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ExpansionTile(
-                    leading: Icon(folderIcon(folder), color: updatedCourse.color),
-                    title: Text(folder,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Attachments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ...groupedAttachments.entries.map((entry) {
+              final folder = entry.key;
+              final files = entry.value;
+              return ExpansionTile(
+                leading: Icon(folderIcon(folder), color: updatedCourse.color),
+                title: Text(folder, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                trailing: IconButton(icon: Icon(Icons.add), onPressed: () => pickFileForFolder(folder)),
+                children: files.map((file) {
+                  return ListTile(
+                    leading: Icon(Icons.insert_drive_file),
+                    title: Text(file.name),
+                    subtitle: Text("${(file.size / 1024).toStringAsFixed(2)} KB"),
                     trailing: IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () => pickFileForFolder(folder),
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => setState(() => attachments.remove(file)),
                     ),
-                    children: files.map((file) {
-                      return ListTile(
-                        leading: Icon(Icons.insert_drive_file),
-                        title: Text(file.name),
-                        subtitle: Text("${(file.size / 1024).toStringAsFixed(2)} KB"),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text("Delete File"),
-                                content: Text("Are you sure you want to delete this file?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text("Cancel"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        attachments.remove(file);
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text("Delete", style: TextStyle(color: Colors.red)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                        onTap: () => openFile(file),
-                      );
-                    }).toList(),
-                  ),
-                  if (!isLast) Divider(thickness: 1),
-                ],
+                    onTap: () => openFile(file),
+                  );
+                }).toList(),
               );
             }),
-
             SizedBox(height: 16),
             Divider(thickness: 1),
             ExpansionTile(
@@ -289,46 +221,27 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => AddNoteScreen(course: updatedCourse.title),
-                        ),
+                        MaterialPageRoute(builder: (_) => AddNoteScreen(course: updatedCourse.title)),
                       );
                     },
                   ),
                 ],
               ),
               children: courseNotes.isEmpty
-                  ? [
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text('No notes found for this course.'),
-                      )
-                    ]
+                  ? [Padding(padding: const EdgeInsets.all(12.0), child: Text('No notes found for this course.'))]
                   : courseNotes.map((note) {
                       return ListTile(
                         leading: Icon(Icons.description),
                         title: Text(note.title),
-                        subtitle: Text(
-                          'Created: ${note.createdAt.toLocal().toString().split(' ')[0]}',
-                          style: TextStyle(fontSize: 12),
+                        subtitle: Text('Created: ${note.createdAt.toLocal().toString().split(' ')[0]}', style: TextStyle(fontSize: 12)),
+                        onTap: () => showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text(note.title),
+                            content: SingleChildScrollView(child: Text(note.content)),
+                            actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text("Close"))],
+                          ),
                         ),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: Text(note.title),
-                              content: SingleChildScrollView(
-                                child: Text(note.content),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text("Close"),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -337,40 +250,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (_) => AddNoteScreen(
-                                      course: updatedCourse.title,
-                                      noteToEdit: note,
-                                    ),
-                                  ),
+                                  MaterialPageRoute(builder: (_) => AddNoteScreen(course: updatedCourse.title, noteToEdit: note)),
                                 );
                               },
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text("Delete Note"),
-                                    content: Text("Are you sure you want to delete this note?"),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: Text("Cancel"),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Provider.of<NoteProvider>(context, listen: false)
-                                              .deleteNote(note);
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("Delete", style: TextStyle(color: Colors.red)),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                              onPressed: () => Provider.of<NoteProvider>(context, listen: false).deleteNote(note),
                             ),
                           ],
                         ),
