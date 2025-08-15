@@ -1,6 +1,7 @@
 import 'package:coursecompanion/views/pages/courses_screen.dart';
 import 'package:coursecompanion/views/pages/deadlines_screen.dart';
 import 'package:coursecompanion/views/pages/notes_screen.dart';
+import 'package:coursecompanion/views/pages/reminders_screen.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class _WidgetTreeState extends State<WidgetTree> {
      CoursesScreen(),
      DeadlinesScreen(),
      NotesScreen(),
+     RemindersScreen(),
      //SettingsScreen() 
   ]; 
 
@@ -64,6 +66,11 @@ class _WidgetTreeState extends State<WidgetTree> {
               icon: Icon(Icons.note, color: Colors.white),
               selectedIcon: Icon(Icons.note, color: Colors.white),
               label: 'Notes'
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.notifications, color: Colors.white),
+              selectedIcon: Icon(Icons.notifications, color: Colors.white),
+              label: 'Reminders'
             ),
             //NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
           ],

@@ -1,5 +1,6 @@
 import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/pages/add_note_screen.dart';
+import 'package:coursecompanion/views/pages/add_reminder_screen.dart';
 import 'package:coursecompanion/views/pages/edit_course_screen.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   late List<PlatformFile> attachments;
+  bool isDeleting = false;
 
   @override
   void initState() {
@@ -118,12 +120,40 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
           TextButton(
-            onPressed: () {
-              Provider.of<CourseProvider>(context, listen: false).removeCourse(course.id);
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pop();
+            onPressed: () async {
+              setState(() => isDeleting = true);
+              try {
+                await Provider.of<CourseProvider>(context, listen: false).removeCourse(course.id);
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pop();
+                
+                // Refresh the courses screen
+                if (context.mounted) {
+                  // Trigger a rebuild of the courses screen
+                  Provider.of<CourseProvider>(context, listen: false).notifyListeners();
+                }
+              } catch (e) {
+                Navigator.of(ctx).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error deleting course: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } finally {
+                setState(() => isDeleting = false);
+              }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: isDeleting 
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  ),
+                )
+              : const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -262,6 +292,37 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         ),
                       );
                     }).toList(),
+            ),
+            SizedBox(height: 16),
+            Divider(thickness: 1),
+            ExpansionTile(
+              leading: Icon(Icons.notifications, color: updatedCourse.color),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Reminders', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: Icon(Icons.add, color: updatedCourse.color),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddReminderScreen(
+                            courseId: updatedCourse.id,
+                            courseName: updatedCourse.title,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text('No reminders set for this course.'),
+                ),
+              ],
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzData;
@@ -24,47 +24,62 @@ class NotificationService {
     const InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
+      // Web doesn't need specific initialization settings
     );
 
     bool? initialized = await _notificationsPlugin.initialize(initSettings);
     print('NotificationService: Initialized = $initialized');
 
     // Create Android notification channel
-    if (Platform.isAndroid) {
-      const AndroidNotificationChannel channel = AndroidNotificationChannel(
-        'deadline_channel',
-        'Deadlines',
-        description: 'Notification channel for deadline reminders',
-        importance: Importance.max,
-        playSound: true,
-        enableVibration: true,
-      );
-      final androidPlugin = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      await androidPlugin?.createNotificationChannel(channel);
-      print('NotificationService: Android channel created');
+    if (!kIsWeb) {
+      // Only try to create Android channel if not on web
+      try {
+        const AndroidNotificationChannel channel = AndroidNotificationChannel(
+          'deadline_channel',
+          'Deadlines',
+          description: 'Notification channel for deadline reminders',
+          importance: Importance.max,
+          playSound: true,
+          enableVibration: true,
+        );
+        final androidPlugin = _notificationsPlugin
+            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        await androidPlugin?.createNotificationChannel(channel);
+        print('NotificationService: Android channel created');
+      } catch (e) {
+        print('NotificationService: Could not create Android channel: $e');
+      }
     }
   }
 
   /// Request notification and alarm permissions
   static Future<bool> requestNotificationPermissions() async {
     bool granted = false;
-    if (Platform.isAndroid) {
-      granted = await Permission.notification.request().isGranted;
-      final alarmGranted = await Permission.scheduleExactAlarm.request().isGranted;
-      granted = granted && alarmGranted;
-    } else if (Platform.isIOS) {
-      granted = (await _notificationsPlugin
-              .resolvePlatformSpecificImplementation<
-                  IOSFlutterLocalNotificationsPlugin>()
-              ?.requestPermissions(alert: true, badge: true, sound: true)) ??
-          false;
+    if (kIsWeb) {
+      // Web doesn't support native notifications, return true to continue
+      granted = true;
+    } else {
+      // Try to request permissions for mobile platforms
+      try {
+        granted = await Permission.notification.request().isGranted;
+        final alarmGranted = await Permission.scheduleExactAlarm.request().isGranted;
+        granted = granted && alarmGranted;
+      } catch (e) {
+        print('NotificationService: Could not request permissions: $e');
+        granted = false;
+      }
     }
     return granted;
   }
 
   /// Show an immediate test notification
   static Future<void> showTestNotification() async {
+    if (kIsWeb) {
+      // Web doesn't support native notifications
+      print('Test notification: Web platform - notifications not supported');
+      return;
+    }
+    
     await _notificationsPlugin.show(
       0,
       'Test Notification',
@@ -90,11 +105,15 @@ class NotificationService {
 
   /// Check active notifications (Android only)
   static Future<void> checkActiveNotifications() async {
-    if (Platform.isAndroid) {
-      final androidPlugin = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      final activeNotifications = await androidPlugin?.getActiveNotifications();
-      print('Active notifications: $activeNotifications');
+    if (!kIsWeb) {
+      try {
+        final androidPlugin = _notificationsPlugin
+            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        final activeNotifications = await androidPlugin?.getActiveNotifications();
+        print('Active notifications: $activeNotifications');
+      } catch (e) {
+        print('NotificationService: Could not check active notifications: $e');
+      }
     }
   }
 
@@ -105,6 +124,12 @@ class NotificationService {
     required String body,
     required DateTime scheduledDate,
   }) async {
+    if (kIsWeb) {
+      // Web doesn't support scheduled notifications
+      print('Scheduled notification: Web platform - notifications not supported');
+      return;
+    }
+    
     final now = DateTime.now();
     final tzScheduledDate = tz.TZDateTime.from(scheduledDate, tz.local);
 
@@ -139,6 +164,12 @@ class NotificationService {
     required String body,
     required DateTime dueDate,
   }) async {
+    if (kIsWeb) {
+      // Web doesn't support scheduled notifications
+      print('Deadline notifications: Web platform - notifications not supported');
+      return;
+    }
+    
     if (!await requestNotificationPermissions()) {
       print('Permission denied. Cannot schedule.');
       return;
@@ -170,11 +201,21 @@ class NotificationService {
 
   /// Cancel a single notification by ID
   static Future<void> cancelNotification(int id) async {
+    if (kIsWeb) {
+      // Web doesn't support notifications
+      print('Cancel notification: Web platform - notifications not supported');
+      return;
+    }
     await _notificationsPlugin.cancel(id);
   }
 
   /// Cancel all deadline notifications
   static Future<void> cancelDeadlineNotifications(int baseId) async {
+    if (kIsWeb) {
+      // Web doesn't support notifications
+      print('Cancel deadline notifications: Web platform - notifications not supported');
+      return;
+    }
     for (int i = 0; i < 3; i++) {
       await cancelNotification(baseId * 10 + i);
     }

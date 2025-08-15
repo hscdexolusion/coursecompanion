@@ -1,120 +1,388 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SupabaseService {
-  // Singleton client
-  static final supabase = Supabase.instance.client;
+class SupabaseServiceException implements Exception {
+  final String message;
+  final String? details;
 
-  // ---------------------
-  // COURSES
-  // ---------------------
-  static Future<void> addCourse(String title, String code, String instructor, List<Map<String, String>> schedule) async {
-    await supabase.from('courses').insert({
+  SupabaseServiceException(this.message, [this.details]);
+
+  @override
+  String toString() => 'SupabaseServiceException: $message${details != null ? ' - $details' : ''}';
+}
+
+class SupabaseService {
+  static SupabaseClient get _client => Supabase.instance.client;
+
+  // ===== COURSES =====
+  
+  /// Add a new course to Supabase
+  static Future<Map<String, dynamic>> addCourse({
+    required String title,
+    required String code,
+    String? instructor,
+    List<Map<String, String>>? schedule,
+    int? colorIndex,
+    String? color,
+  }) async {
+    try {
+      final courseData = {
       'title': title,
       'code': code,
-      'instructor': instructor,
-      'schedule': schedule,
-    });
-  }
+        'instructor': instructor ?? '',
+        'schedule': schedule ?? [],
+        'color_index': colorIndex ?? 0,
+        'color': color ?? '#2196F3',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
 
-  static Future<List<Map<String, dynamic>>> getCourses({String? searchQuery}) async {
-    var query = supabase.from('courses').select();
-    if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.ilike('title', '%$searchQuery%'); // Case-insensitive search
+      final response = await _client
+          .from('courses')
+          .insert(courseData)
+          .select()
+          .single();
+
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to add course',
+        e.toString(),
+      );
     }
-    final response = await query;
-    return List<Map<String, dynamic>>.from(response);
   }
 
-  static Future<void> updateCourse(String id, Map<String, dynamic> updates) async {
-    await supabase.from('courses').update(updates).eq('id', id);
+  /// Get all courses from Supabase
+  static Future<List<Map<String, dynamic>>> getCourses() async {
+    try {
+      final response = await _client
+          .from('courses')
+          .select()
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to fetch courses',
+        e.toString(),
+      );
+    }
   }
 
+  /// Update an existing course
+  static Future<Map<String, dynamic>> updateCourse(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
+    try {
+      updates['updated_at'] = DateTime.now().toIso8601String();
+
+      final response = await _client
+          .from('courses')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to update course',
+        e.toString(),
+      );
+    }
+  }
+
+  /// Delete a course by ID
   static Future<void> deleteCourse(String id) async {
-    await supabase.from('courses').delete().eq('id', id);
+    try {
+      await _client
+          .from('courses')
+          .delete()
+          .eq('id', id);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to delete course',
+        e.toString(),
+      );
+    }
   }
 
-  // ---------------------
-  // NOTES
-  // ---------------------
-  static Future<void> addNote(String courseId, String title, String content) async {
-    await supabase.from('notes').insert({
+  // ===== NOTES =====
+  
+  /// Add a new note to Supabase
+  static Future<Map<String, dynamic>> addNote({
+    required String courseId,
+    required String title,
+    required String content,
+    String? tags,
+  }) async {
+    try {
+      final noteData = {
       'course_id': courseId,
       'title': title,
       'content': content,
-    });
-  }
+        'tags': tags ?? '',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
 
-  static Future<List<Map<String, dynamic>>> getNotes(String courseId, {String? searchQuery}) async {
-    var query = supabase.from('notes').select().eq('course_id', courseId);
-    if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.ilike('title', '%$searchQuery%');
+      final response = await _client
+          .from('notes')
+          .insert(noteData)
+          .select()
+          .single();
+
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to add note',
+        e.toString(),
+      );
     }
-    final response = await query;
-    return List<Map<String, dynamic>>.from(response);
   }
 
-  static Future<void> updateNote(String id, Map<String, dynamic> updates) async {
-    await supabase.from('notes').update(updates).eq('id', id);
+  /// Get all notes from Supabase
+  static Future<List<Map<String, dynamic>>> getNotes() async {
+    try {
+      final response = await _client
+          .from('notes')
+          .select()
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to fetch notes',
+        e.toString(),
+      );
+    }
   }
 
+  /// Update an existing note
+  static Future<Map<String, dynamic>> updateNote(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
+    try {
+      updates['updated_at'] = DateTime.now().toIso8601String();
+
+      final response = await _client
+          .from('notes')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to update note',
+        e.toString(),
+      );
+    }
+  }
+
+  /// Delete a note by ID
   static Future<void> deleteNote(String id) async {
-    await supabase.from('notes').delete().eq('id', id);
+    try {
+      await _client
+          .from('notes')
+          .delete()
+          .eq('id', id);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to delete note',
+        e.toString(),
+      );
+    }
   }
 
-  // ---------------------
-  // DEADLINES
-  // ---------------------
-  static Future<void> addDeadline(String courseId, String note, DateTime dueDate) async {
-    await supabase.from('deadlines').insert({
+  // ===== DEADLINES =====
+  
+  /// Add a new deadline to Supabase
+  static Future<Map<String, dynamic>> addDeadline({
+    required String courseId,
+    required String title,
+    required String description,
+    required DateTime dueDate,
+    String? priority,
+  }) async {
+    try {
+      final deadlineData = {
       'course_id': courseId,
-      'note': note,
+        'title': title,
+        'description': description,
       'due_date': dueDate.toIso8601String(),
-      'status': 'pending',
-    });
-  }
+        'priority': priority ?? 'medium',
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      };
 
-  static Future<List<Map<String, dynamic>>> getDeadlines(String courseId, {String status = 'all', String? searchQuery}) async {
-    var query = supabase.from('deadlines').select().eq('course_id', courseId);
+      final response = await _client
+          .from('deadlines')
+          .insert(deadlineData)
+          .select()
+          .single();
 
-    if (status != 'all') {
-      query = query.eq('status', status); // Filter by pending/completed
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to add deadline',
+        e.toString(),
+      );
     }
+  }
 
-    if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.ilike('note', '%$searchQuery%');
+  /// Get all deadlines from Supabase
+  static Future<List<Map<String, dynamic>>> getDeadlines() async {
+    try {
+      final response = await _client
+          .from('deadlines')
+          .select()
+          .order('due_date', ascending: true);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to fetch deadlines',
+        e.toString(),
+      );
     }
-
-    final response = await query;
-    return List<Map<String, dynamic>>.from(response);
   }
 
-  static Future<void> updateDeadline(String id, Map<String, dynamic> updates) async {
-    await supabase.from('deadlines').update(updates).eq('id', id);
+  /// Update an existing deadline
+  static Future<Map<String, dynamic>> updateDeadline(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
+    try {
+      updates['updated_at'] = DateTime.now().toIso8601String();
+
+      final response = await _client
+          .from('deadlines')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to update deadline',
+        e.toString(),
+      );
+    }
   }
 
+  /// Delete a deadline by ID
   static Future<void> deleteDeadline(String id) async {
-    await supabase.from('deadlines').delete().eq('id', id);
+    try {
+      await _client
+          .from('deadlines')
+          .delete()
+          .eq('id', id);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to delete deadline',
+        e.toString(),
+      );
+    }
   }
 
-  // ---------------------
-  // ATTACHMENTS
-  // ---------------------
-  static Future<void> addAttachment(String courseId, String type, String fileUrl) async {
-    await supabase.from('attachments').insert({
+  // ===== ATTACHMENTS =====
+  
+  /// Add a new attachment to Supabase
+  static Future<Map<String, dynamic>> addAttachment({
+    required String courseId,
+    required String fileName,
+    required String fileUrl,
+    String? fileType,
+    int? fileSize,
+  }) async {
+    try {
+      final attachmentData = {
       'course_id': courseId,
-      'type': type,
+        'file_name': fileName,
       'file_url': fileUrl,
-    });
+        'file_type': fileType ?? '',
+        'file_size': fileSize ?? 0,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
+      final response = await _client
+          .from('attachments')
+          .insert(attachmentData)
+          .select()
+          .single();
+
+      return response;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to add attachment',
+        e.toString(),
+      );
+    }
   }
 
-  static Future<List<Map<String, dynamic>>> getAttachments(String courseId, [String? type]) async {
-    var query = supabase.from('attachments').select().eq('course_id', courseId);
-    if (type != null) query = query.eq('type', type);
-    final response = await query;
+  /// Get all attachments from Supabase
+  static Future<List<Map<String, dynamic>>> getAttachments() async {
+    try {
+      final response = await _client
+          .from('attachments')
+          .select()
+          .order('created_at', ascending: false);
+
     return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to fetch attachments',
+        e.toString(),
+      );
+    }
   }
 
+  /// Delete an attachment by ID
   static Future<void> deleteAttachment(String id) async {
-    await supabase.from('attachments').delete().eq('id', id);
+    try {
+      await _client
+          .from('attachments')
+          .delete()
+          .eq('id', id);
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to delete attachment',
+        e.toString(),
+      );
+    }
   }
-}
+
+  // ===== UTILITY METHODS =====
+  
+  /// Get count of records in a table
+  static Future<int> getCount(String table) async {
+    try {
+      final response = await _client.from(table).select('*');
+      return response.length;
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to get count from $table',
+        e.toString(),
+      );
+    }
+  }
+
+  /// Clear all data from all tables (use with caution!)
+  static Future<void> clearAllData() async {
+    try {
+      await _client.from('attachments').delete().neq('id', '');
+      await _client.from('deadlines').delete().neq('id', '');
+      await _client.from('notes').delete().neq('id', '');
+      await _client.from('courses').delete().neq('id', '');
+    } catch (e) {
+      throw SupabaseServiceException(
+        'Failed to clear all data',
+        e.toString(),
+      );
+    }
+  }
+} 

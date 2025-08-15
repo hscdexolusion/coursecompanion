@@ -22,10 +22,12 @@ class AddDeadlineScreen extends StatefulWidget {
 class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _title;
-  String? _note;
-  String? _selectedCourse;
+  String? _description;
+  String? _selectedCourseId;
+  String? _selectedCourseName;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  String _priority = 'medium';
 
   @override
   void initState() {
@@ -33,10 +35,12 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
     if (widget.existingDeadline != null) {
       final existing = widget.existingDeadline!;
       _title = existing.title;
-      _note = existing.note;
-      _selectedCourse = existing.course;
+      _description = existing.description;
+      _selectedCourseId = existing.courseId;
+      _selectedCourseName = existing.courseName;
       _selectedDate = existing.dueDate;
       _selectedTime = TimeOfDay.fromDateTime(existing.dueDate);
+      _priority = existing.priority;
     }
   }
 
@@ -97,30 +101,37 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Note
+              // Description
               TextFormField(
-                initialValue: _note,
-                decoration: const InputDecoration(labelText: 'Note'),
-                onSaved: (value) => _note = value,
+                initialValue: _description,
+                decoration: const InputDecoration(labelText: 'Description'),
+                onSaved: (value) => _description = value,
               ),
               const SizedBox(height: 16),
 
               // Course Dropdown
               DropdownButtonFormField<String>(
-                value: _selectedCourse,
+                value: _selectedCourseId,
                 items: [
                   const DropdownMenuItem(
-                    value: 'Unassigned',
-                    child: Text('Unassigned'),
+                    value: null,
+                    child: Text('No Course'),
                   ),
                   ...courses.map(
                     (c) => DropdownMenuItem(
-                      value: c.title,
+                      value: c.id,
                       child: Text(c.title),
                     ),
                   ),
                 ],
-                onChanged: (value) => setState(() => _selectedCourse = value),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCourseId = value;
+                    _selectedCourseName = value != null
+                        ? courses.firstWhere((c) => c.id == value).title
+                        : null;
+                  });
+                },
                 decoration: const InputDecoration(labelText: 'Course'),
               ),
               const SizedBox(height: 16),
@@ -244,8 +255,9 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
                     // Update existing
                     final updated = widget.existingDeadline!.copyWith(
                       title: _title!,
-                      note: _note!,
-                      course: _selectedCourse ?? 'Unassigned',
+                      description: _description ?? '',
+                      courseId: _selectedCourseId ?? '',
+                      courseName: _selectedCourseName ?? 'No Course',
                       dueDate: dueDate,
                     );
                     provider.updateDeadline(widget.existingDeadline!.id, updated);
@@ -266,9 +278,13 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
                     final newDeadline = Deadline(
                       id: const Uuid().v4(),
                       title: _title!,
-                      note: _note!,
-                      course: _selectedCourse ?? 'Unassigned',
+                      description: _description ?? '',
+                      courseId: _selectedCourseId ?? '',
+                      courseName: _selectedCourseName ?? 'No Course',
                       dueDate: dueDate,
+                      priority: _priority,
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
                     );
                     provider.addDeadline(newDeadline);
 

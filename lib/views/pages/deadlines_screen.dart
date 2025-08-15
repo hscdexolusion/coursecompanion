@@ -5,8 +5,22 @@ import 'package:coursecompanion/views/pages/add_deadline_screen.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import '../../services/notification_service.dart'; // Import NotificationService
 
-class DeadlinesScreen extends StatelessWidget {
+class DeadlinesScreen extends StatefulWidget {
   const DeadlinesScreen({super.key});
+
+  @override
+  State<DeadlinesScreen> createState() => _DeadlinesScreenState();
+}
+
+class _DeadlinesScreenState extends State<DeadlinesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load deadlines from Supabase when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<DeadlineProvider>(context, listen: false).loadDeadlines();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +146,7 @@ class DeadlinesScreen extends StatelessWidget {
           ),
           child: ListTile(
             title: Text(d.title),
-            subtitle: Text('${d.course} • Due: ${d.dueDate.toLocal()}'),
+                         subtitle: Text('${d.courseName} • Due: ${d.dueDate.toLocal()}'),
             trailing: PopupMenuButton<String>(
               onSelected: (value) async {
                 final provider =

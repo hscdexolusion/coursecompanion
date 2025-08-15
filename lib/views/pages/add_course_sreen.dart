@@ -5,6 +5,7 @@ import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:coursecompanion/services/supabase_service.dart';
 
 class AddCoursePage extends StatefulWidget {
   final Course? course;
@@ -39,6 +40,10 @@ class _AddCoursePageState extends State<AddCoursePage> {
   ];
 
   List<PlatformFile> selectedFiles = [];
+
+  String _colorToHex(Color color) {
+    return '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+  }
 
   @override
   void initState() {
@@ -219,30 +224,93 @@ class _AddCoursePageState extends State<AddCoursePage> {
                 ],
               ),
               child: ElevatedButton.icon(
-                onPressed: () {
+                onPressed: () async {
                   if (courseNameController.text.isNotEmpty && courseCodeController.text.isNotEmpty) {
-                    final newCourse = Course(
-                      id: widget.course?.id ?? UniqueKey().toString(),
-                      title: courseNameController.text,
-                      code: courseCodeController.text,
-                      instructor: instructorController.text,
-                      schedule: _schedule,
-                      colorIndex: selectedColorIndex,
-                      color: colors[selectedColorIndex],
-                      attachments: selectedFiles,
-                    );
+                    try {
+                      // Show loading indicator
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Saving course...')),
+                      );
 
-                    final provider = Provider.of<CourseProvider>(context, listen: false);
+                      if (widget.course == null) {
+                        // Add new course to Supabase
+                        final courseData = await SupabaseService.addCourse(
+                          title: courseNameController.text,
+                          code: courseCodeController.text,
+                          instructor: instructorController.text,
+                          schedule: _schedule,
+                          colorIndex: selectedColorIndex,
+                          color: _colorToHex(colors[selectedColorIndex]),
+                        );
 
-                    if (widget.course == null) {
-                      provider.addCourse(newCourse);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Course added!')));
-                    } else {
-                      provider.updateCourse(newCourse);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Course updated!')));
+                        // Also add to provider for immediate UI update
+                        final newCourse = Course(
+                          id: courseData['id'],
+                          title: courseNameController.text,
+                          code: courseCodeController.text,
+                          instructor: instructorController.text,
+                          schedule: _schedule,
+                          colorIndex: selectedColorIndex,
+                          color: colors[selectedColorIndex],
+                          attachments: selectedFiles,
+                        );
+
+                        final provider = Provider.of<CourseProvider>(context, listen: false);
+                        provider.addCourse(newCourse);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Course added successfully!')),
+                        );
+                      } else {
+                        // Update existing course
+                        await SupabaseService.updateCourse(
+                          widget.course!.id,
+                          {
+                            'title': courseNameController.text,
+                            'code': courseCodeController.text,
+                            'instructor': instructorController.text,
+                            'schedule': _schedule,
+                            'color_index': selectedColorIndex,
+                            'color': _colorToHex(colors[selectedColorIndex]),
+                          },
+                        );
+
+                        // Also update in provider for immediate UI update
+                        final updatedCourse = Course(
+                          id: widget.course!.id,
+                          title: courseNameController.text,
+                          code: courseCodeController.text,
+                          instructor: instructorController.text,
+                          schedule: _schedule,
+                          colorIndex: selectedColorIndex,
+                          color: colors[selectedColorIndex],
+                          attachments: selectedFiles,
+                        );
+
+                        final provider = Provider.of<CourseProvider>(context, listen: false);
+                        provider.updateCourse(updatedCourse);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Course updated successfully!')),
+                        );
+                      }
+
+                      Navigator.pop(context);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error saving course: ${e.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
-
-                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please fill in all required fields'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
                   }
                 },
                 icon: Icon(Icons.save),

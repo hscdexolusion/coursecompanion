@@ -6,6 +6,7 @@ import 'package:coursecompanion/views/widgets/empty_state.dart';
 import 'package:coursecompanion/models/course_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:coursecompanion/providers/course_provider.dart';
 
 class CoursesScreen extends StatefulWidget {
   const CoursesScreen({super.key});
@@ -24,12 +25,47 @@ class _CoursesScreenState extends State<CoursesScreen> {
     _loadCourses();
   }
 
+  Color _parseColor(dynamic colorData) {
+    try {
+      if (colorData != null) {
+        final colorStr = colorData.toString();
+        // Handle different color formats
+        if (colorStr.startsWith('#')) {
+          // Hex color
+          return Color(int.parse(colorStr.replaceFirst('#', '0xFF')));
+        } else if (colorStr.startsWith('Color(')) {
+          // Flutter Color object - fallback to blue
+          return Colors.blue;
+        } else {
+          // Try to parse as integer
+          return Color(int.parse(colorStr));
+        }
+      }
+      return Colors.blue;
+    } catch (e) {
+      // If any parsing fails, use default blue
+      return Colors.blue;
+    }
+  }
+
   Future<void> _loadCourses() async {
     setState(() => isLoading = true);
     try {
-      final fetchedCourses = await SupabaseService.getCourses();
+      // Load courses through the provider
+      final provider = Provider.of<CourseProvider>(context, listen: false);
+      await provider.loadCourses();
+      
+      // Update local state for backward compatibility
       setState(() {
-        courses = fetchedCourses;
+        courses = provider.courses.map((course) => {
+          'id': course.id,
+          'title': course.title,
+          'code': course.code,
+          'instructor': course.instructor,
+          'schedule': course.schedule,
+          'colorIndex': course.colorIndex,
+          'color': course.color,
+        }).toList();
       });
     } catch (e) {
       debugPrint('Error fetching courses: $e');
@@ -58,6 +94,11 @@ class _CoursesScreenState extends State<CoursesScreen> {
         title: const Text('Courses'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadCourses,
+            tooltip: 'Refresh Courses',
+          ),
+          IconButton(
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => themeProvider.toggleTheme(),
           ),
@@ -79,7 +120,29 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     itemCount: courses.length,
                     itemBuilder: (context, index) {
                       final course = courses[index];
-                      final color = Color(int.parse(course['color'].toString()));
+                      // Use a default color if color field doesn't exist or can't be parsed
+                      Color color;
+                      try {
+                        if (course['color'] != null) {
+                          final colorStr = course['color'].toString();
+                          // Handle different color formats
+                          if (colorStr.startsWith('#')) {
+                            // Hex color
+                            color = Color(int.parse(colorStr.replaceFirst('#', '0xFF')));
+                          } else if (colorStr.startsWith('Color(')) {
+                            // Flutter Color object
+                            color = Colors.blue; // Fallback to blue
+                          } else {
+                            // Try to parse as integer
+                            color = Color(int.parse(colorStr));
+                          }
+                        } else {
+                          color = Colors.blue;
+                        }
+                      } catch (e) {
+                        // If any parsing fails, use default blue
+                        color = Colors.blue;
+                      }
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -93,8 +156,8 @@ class _CoursesScreenState extends State<CoursesScreen> {
                                 instructor: course['instructor'],
                                 schedule: List<Map<String, String>>.from(course['schedule'] ?? []),
                                 colorIndex: course['colorIndex'] ?? 0,
-                                color: Color(int.parse(course['color'].toString())),
-                                attachments: [], // You can load attachments from Supabase if you store them
+                                color: color,
+                                attachments: [], // You can load attachments from local storage if you store them
                               ),
                             ),
                           ),
