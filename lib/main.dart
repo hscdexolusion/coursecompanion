@@ -58,6 +58,8 @@ Future<void> main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom]);
 
+final notifications = WebNotificationService();
+await notifications.initialize();
 
 
   // Run app with providers

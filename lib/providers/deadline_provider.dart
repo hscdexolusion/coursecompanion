@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/deadline_model.dart';
 import '../services/notification_service.dart';
 import '../services/supabase_service.dart';
-import 'package:uuid/uuid.dart';
 
 class DeadlineProvider with ChangeNotifier {
   final List<Deadline> _deadlines = [];
@@ -25,7 +24,7 @@ class DeadlineProvider with ChangeNotifier {
 
       final deadlinesData = await SupabaseService.getDeadlines();
       _deadlines.clear();
-      
+
       for (final data in deadlinesData) {
         _deadlines.add(Deadline.fromMap(data));
       }
@@ -44,7 +43,6 @@ class DeadlineProvider with ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // Add to Supabase
       final response = await SupabaseService.addDeadline(
         courseId: deadline.courseId,
         title: deadline.title,
@@ -53,23 +51,23 @@ class DeadlineProvider with ChangeNotifier {
         priority: deadline.priority,
       );
 
-      // Update the deadline with the ID from Supabase
       final updatedDeadline = deadline.copyWith(
         id: response['id'],
         createdAt: DateTime.parse(response['created_at']),
         updatedAt: DateTime.parse(response['updated_at']),
+        isCompleted: response['is_completed'] ?? false,
       );
 
-      // Add to local list
       _deadlines.add(updatedDeadline);
 
-      // Only schedule if the deadline is in the future and not completed
-      if (!deadline.isCompleted && deadline.dueDate.isAfter(DateTime.now())) {
+      if (!updatedDeadline.isCompleted &&
+          updatedDeadline.dueDate.isAfter(DateTime.now())) {
         NotificationService.scheduleNotification(
-          id: deadline.id.hashCode,
+          id: updatedDeadline.id.hashCode,
           title: "Upcoming Deadline",
-          body: "${deadline.title} is due on ${deadline.dueDate}",
-          scheduledDate: deadline.dueDate.subtract(const Duration(hours: 1)),
+          body: "${updatedDeadline.title} is due on ${updatedDeadline.dueDate}",
+          scheduledDate:
+              updatedDeadline.dueDate.subtract(const Duration(hours: 1)),
         );
       }
 
@@ -83,68 +81,11 @@ class DeadlineProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteDeadline(Deadline deadline) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      // Delete from Supabase
-      await SupabaseService.deleteDeadline(deadline.id);
-
-      // Remove from local list
-      _deadlines.remove(deadline);
-
-      // Cancel notification
-      NotificationService.cancelNotification(deadline.id.hashCode);
-
-      notifyListeners();
-    } catch (e) {
-      print('Error deleting deadline: $e');
-      rethrow;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> toggleCompletion(String id) async {
-    try {
-      final deadline = _deadlines.firstWhere((d) => d.id == id);
-      final newCompletionStatus = !deadline.isCompleted;
-      
-      // Update in Supabase
-      await SupabaseService.updateDeadline(id, {
-        'is_completed': newCompletionStatus,
-      });
-
-      // Update local deadline
-      deadline.isCompleted = newCompletionStatus;
-
-      if (deadline.isCompleted) {
-        NotificationService.cancelNotification(deadline.id.hashCode);
-      } else if (deadline.dueDate.isAfter(DateTime.now())) {
-        // Re-schedule if marking back to pending
-        NotificationService.scheduleNotification(
-          id: deadline.id.hashCode,
-          title: "Upcoming Deadline",
-          body: "${deadline.title} is due on ${deadline.dueDate}",
-          scheduledDate: deadline.dueDate.subtract(const Duration(hours: 1)),
-        );
-      }
-
-      notifyListeners();
-    } catch (e) {
-      print('Error toggling deadline completion: $e');
-      rethrow;
-    }
-  }
-
   Future<void> updateDeadline(String id, Deadline updatedDeadline) async {
     try {
       _isLoading = true;
       notifyListeners();
 
-      // Update in Supabase
       await SupabaseService.updateDeadline(id, {
         'title': updatedDeadline.title,
         'description': updatedDeadline.description,
@@ -155,15 +96,12 @@ class DeadlineProvider with ChangeNotifier {
         'is_completed': updatedDeadline.isCompleted,
       });
 
-      // Update local list
       final index = _deadlines.indexWhere((d) => d.id == id);
       if (index != -1) {
         _deadlines[index] = updatedDeadline;
 
-        // Cancel old notification
         NotificationService.cancelNotification(updatedDeadline.id.hashCode);
 
-        // Schedule new one only if pending & in future
         if (!updatedDeadline.isCompleted &&
             updatedDeadline.dueDate.isAfter(DateTime.now())) {
           NotificationService.scheduleNotification(
@@ -186,19 +124,60 @@ class DeadlineProvider with ChangeNotifier {
     }
   }
 
+  Future<void> deleteDeadline(Deadline deadline) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      await SupabaseService.deleteDeadline(deadline.id);
+      _deadlines.remove(deadline);
+      NotificationService.cancelNotification(deadline.id.hashCode);
+
+      notifyListeners();
+    } catch (e) {
+      print('Error deleting deadline: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> markAsCompleted(Deadline deadline) async {
     try {
-      // Update in Supabase
-      await SupabaseService.updateDeadline(deadline.id, {
-        'is_completed': true,
-      });
-
-      // Update local deadline
+      await SupabaseService.updateDeadline(deadline.id, {'is_completed': true});
       deadline.isCompleted = true;
       NotificationService.cancelNotification(deadline.id.hashCode);
       notifyListeners();
     } catch (e) {
       print('Error marking deadline as completed: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> toggleCompletion(String id) async {
+    try {
+      final deadline = _deadlines.firstWhere((d) => d.id == id);
+      final newCompletionStatus = !deadline.isCompleted;
+
+      await SupabaseService.updateDeadline(id, {'is_completed': newCompletionStatus});
+
+      deadline.isCompleted = newCompletionStatus;
+
+      if (deadline.isCompleted) {
+        NotificationService.cancelNotification(deadline.id.hashCode);
+      } else if (deadline.dueDate.isAfter(DateTime.now())) {
+        NotificationService.scheduleNotification(
+          id: deadline.id.hashCode,
+          title: "Upcoming Deadline",
+          body: "${deadline.title} is due on ${deadline.dueDate}",
+          scheduledDate: deadline.dueDate.subtract(const Duration(hours: 1)),
+        );
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print('Error toggling deadline completion: $e');
       rethrow;
     }
   }

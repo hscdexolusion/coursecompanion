@@ -5,10 +5,10 @@ import 'package:coursecompanion/services/notification_service.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import 'package:coursecompanion/services/supabase_service.dart';
 
 class AddDeadlineScreen extends StatefulWidget {
   final Deadline? existingDeadline;
@@ -52,9 +52,7 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
       firstDate: now,
       lastDate: DateTime(2100),
     );
-    if (pickedDate != null) {
-      setState(() => _selectedDate = pickedDate);
-    }
+    if (pickedDate != null) setState(() => _selectedDate = pickedDate);
   }
 
   Future<void> _selectTime() async {
@@ -63,25 +61,17 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
       context: context,
       initialTime: _selectedTime ?? now,
     );
-    if (pickedTime != null) {
-      setState(() => _selectedTime = pickedTime);
-    }
+    if (pickedTime != null) setState(() => _selectedTime = pickedTime);
   }
 
   DateTime _combine(DateTime date, TimeOfDay time) {
     return DateTime(date.year, date.month, date.day, time.hour, time.minute);
   }
 
-  Future<void> _promptBatteryOptimization() async {
-    // Optional: Ask Android users to disable battery optimization for reliability
-    if (Theme.of(context).platform == TargetPlatform.android) {
-      // Implementation for prompting battery optimization disable
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final courses = Provider.of<CourseProvider>(context).courses;
+    final deadlineProvider = Provider.of<DeadlineProvider>(context, listen: false);
 
     return Scaffold(
       appBar: const CustomAppBar(title: 'Add Deadline'),
@@ -170,140 +160,45 @@ class _AddDeadlineScreenState extends State<AddDeadlineScreen> {
                     return;
                   }
 
-                  final now = DateTime.now();
+                  _formKey.currentState!.save();
                   final dueDate = _combine(_selectedDate!, _selectedTime!);
 
-                  const minLead = Duration(seconds: 15);
-                  if (!dueDate.isAfter(now.add(minLead))) {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Invalid Date & Time'),
-                        content: const Text(
-                          'Please pick a time at least a few seconds in the future.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(),
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
-                    );
-                    return;
-                  }
+                  try {
+                    if (widget.existingDeadline != null) {
+                      // Update existing deadline
+                      final updated = widget.existingDeadline!.copyWith(
+                        title: _title!,
+                        description: _description ?? '',
+                        courseId: _selectedCourseId ?? '',
+                        courseName: _selectedCourseName ?? 'No Course',
+                        dueDate: dueDate,
+                      );
+                      await deadlineProvider.updateDeadline(widget.existingDeadline!.id, updated);
+                    } else {
+                      // Add new deadline
+                      final newDeadline = Deadline(
+                        id: const Uuid().v4(),
+                        title: _title!,
+                        description: _description ?? '',
+                        courseId: _selectedCourseId ?? '',
+                        courseName: _selectedCourseName ?? 'No Course',
+                        dueDate: dueDate,
+                        priority: _priority,
+                        createdAt: DateTime.now(),
+                        updatedAt: DateTime.now(),
+                      );
+                      await deadlineProvider.addDeadline(newDeadline);
+                    }
 
-                  _formKey.currentState!.save();
-                  final provider =
-                      Provider.of<DeadlineProvider>(context, listen: false);
+                    // Force reload to update DeadlinesScreen immediately
+                    await deadlineProvider.loadDeadlines();
 
-                  // Prevent duplicate deadlines at the same minute
-                  final isDuplicate = provider.allDeadlines.any((d) {
-                    if (d.id == widget.existingDeadline?.id) return false;
-                    final existing = d.dueDate;
-                    return existing.year == dueDate.year &&
-                        existing.month == dueDate.month &&
-                        existing.day == dueDate.day &&
-                        existing.hour == dueDate.hour &&
-                        existing.minute == dueDate.minute;
-                  });
-
-                  if (isDuplicate) {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Duplicate Deadline'),
-                        content: const Text(
-                          'A deadline already exists at this date and time.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(),
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
-                    );
-                    return;
-                  }
-
-                  // Request permissions
-                  final hasPermission =
-                      await NotificationService.requestNotificationPermissions();
-                  if (!hasPermission) {
+                    Navigator.pop(context);
+                  } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text(
-                            'Notification permissions are required for reminders.'),
-                        action: SnackBarAction(
-                          label: 'Settings',
-                          onPressed: () => openAppSettings(),
-                        ),
-                      ),
+                      SnackBar(content: Text('Failed to save deadline: $e')),
                     );
-                    return;
                   }
-
-                  await _promptBatteryOptimization();
-                  await NotificationService.showTestNotification();
-
-                  // Save deadline and schedule notifications
-                  late int baseId;
-                  final String deadlineTitle = _title ?? '';
-
-                  if (widget.existingDeadline != null) {
-                    // Update existing
-                    final updated = widget.existingDeadline!.copyWith(
-                      title: _title!,
-                      description: _description ?? '',
-                      courseId: _selectedCourseId ?? '',
-                      courseName: _selectedCourseName ?? 'No Course',
-                      dueDate: dueDate,
-                    );
-                    provider.updateDeadline(widget.existingDeadline!.id, updated);
-
-                    baseId = widget.existingDeadline!.id.hashCode;
-                    await NotificationService.cancelDeadlineNotifications(baseId);
-
-                    await NotificationService.scheduleDeadlineNotifications(
-                      baseId: baseId,
-                      title: 'Deadline approaching!',
-                      body: 'Your deadline "$deadlineTitle" is due soon.',
-                      dueDate: dueDate,
-                    );
-
-                    print('Updated deadline scheduled at $dueDate (now: $now)');
-                  } else {
-                    // Create new
-                    final newDeadline = Deadline(
-                      id: const Uuid().v4(),
-                      title: _title!,
-                      description: _description ?? '',
-                      courseId: _selectedCourseId ?? '',
-                      courseName: _selectedCourseName ?? 'No Course',
-                      dueDate: dueDate,
-                      priority: _priority,
-                      createdAt: DateTime.now(),
-                      updatedAt: DateTime.now(),
-                    );
-                    provider.addDeadline(newDeadline);
-
-                    baseId = newDeadline.id.hashCode;
-
-                    await NotificationService.scheduleDeadlineNotifications(
-                      baseId: baseId,
-                      title: 'Deadline approaching!',
-                      body: 'Your deadline "$deadlineTitle" is due soon.',
-                      dueDate: dueDate,
-                    );
-
-                    print('New deadline scheduled at $dueDate (now: $now)');
-                  }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Deadline saved successfully')),
-                  );
-                  Navigator.pop(context);
                 },
                 child: const Text('Save Deadline'),
               ),

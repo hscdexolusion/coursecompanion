@@ -1,10 +1,10 @@
+import 'package:coursecompanion/models/note_model.dart';
+import 'package:coursecompanion/providers/note_provider.dart';
+import 'package:coursecompanion/providers/course_provider.dart';
 import 'package:coursecompanion/views/widgets/custom_app_bar.dart';
 import 'package:coursecompanion/views/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/note_model.dart';
-import '../../providers/note_provider.dart';
-import '../../providers/course_provider.dart';
 
 class AddNoteScreen extends StatefulWidget {
   final Note? noteToEdit;
@@ -114,7 +114,6 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                   contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                 ),
               ),
-
               const SizedBox(height: 20),
 
               const Text('Note Content'),
@@ -130,9 +129,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter note content' : null,
               ),
-
               const SizedBox(height: 20),
 
+              // Gradient Save/Update Button
               Container(
                 decoration: BoxDecoration(
                   gradient: themeProvider.primaryGradient,
@@ -147,14 +146,15 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                 ),
                 child: ElevatedButton.icon(
                   onPressed: _saveNote,
-                  icon: Icon(Icons.save),
+                  icon: const Icon(Icons.save),
                   label: Text(widget.noteToEdit == null ? "Add Note" : "Update Note"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     foregroundColor: Colors.white,
                     shadowColor: Colors.transparent,
                     minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
               ),
