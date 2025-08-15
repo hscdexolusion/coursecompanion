@@ -33,6 +33,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       _selectedCourse = widget.noteToEdit!.course;
     } else if (widget.course != null) {
       _selectedCourse = widget.course;
+    } else {
+      _selectedCourse = 'Unassigned';
     }
   }
 
@@ -48,6 +50,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       final noteProvider = Provider.of<NoteProvider>(context, listen: false);
 
       final newNote = Note(
+        id: widget.noteToEdit?.id ?? '', // Will be set by provider if new
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         course: _selectedCourse ?? 'Unassigned',
@@ -101,14 +104,19 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
               DropdownButtonFormField<String>(
                 value: _selectedCourse,
                 hint: Text(courses.isEmpty ? "No courses available" : "Select a course"),
-                items: courses.map((course) {
-                  return DropdownMenuItem<String>(
-                    value: course.title,
-                    child: Text(course.title),
-                  );
-                }).toList(),
-                onChanged:
-                    courses.isEmpty ? null : (value) => setState(() => _selectedCourse = value),
+                items: [
+                  const DropdownMenuItem<String>(
+                    value: 'Unassigned',
+                    child: Text('Unassigned'),
+                  ),
+                  ...courses.map((course) {
+                    return DropdownMenuItem<String>(
+                      value: course.title,
+                      child: Text(course.title),
+                    );
+                  }).toList(),
+                ],
+                onChanged: (value) => setState(() => _selectedCourse = value),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                   contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),

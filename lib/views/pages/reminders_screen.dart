@@ -153,7 +153,8 @@ class _RemindersScreenState extends State<RemindersScreen>
     if (reminders.isEmpty) {
       return EmptyState(
         icon: Icons.notifications_off,
-        message: emptyMessage,
+        title: 'No reminders',
+        subtitle: emptyMessage,
       );
     }
 
